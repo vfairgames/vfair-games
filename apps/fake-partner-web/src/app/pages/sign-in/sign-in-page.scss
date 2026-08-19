@@ -1,0 +1,29 @@
+.sign-in-page {
+  min-height: 100dvh;
+  background-color: var(--gray-2);
+
+  &__card {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  &__input {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-2);
+    background-color: var(--color-background);
+    color: var(--gray-12);
+    font-size: var(--font-size-2);
+    outline: none;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: var(--gray-8);
+    }
+
+    &:focus {
+      border-color: var(--accent-8);
+    }
+  }
+}

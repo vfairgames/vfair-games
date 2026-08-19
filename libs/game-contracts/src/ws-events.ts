@@ -1,0 +1,15 @@
+export const WS_SESSION_GET_FAIRNESS = 'session:getFairness' as const;
+export const WS_SESSION_GET_NEXT_SEED_PAIR = 'session:getNextSeedPair' as const;
+export const WS_SESSION_GET_ACTIVE_ROUNDS = 'session:getActiveRounds' as const;
+export const WS_SESSION_ROTATE_FAIRNESS = 'session:rotateFairness' as const;
+export const WS_SESSION_GET_BALANCE = 'session:getBalance' as const;
+export const WS_SESSION_GET_BET_HISTORY = 'session:getBetHistory' as const;
+export const WS_DICE_PLACE_BET = 'dice:placeBet' as const;
+export const WS_LIMBO_PLACE_BET = 'limbo:placeBet' as const;
+export const WS_MINES_PLACE_BET = 'mines:placeBet' as const;
+export const WS_MINES_REVEAL_TILE = 'mines:revealTile' as const;
+export const WS_MINES_CASH_OUT = 'mines:cashOut' as const;
+export const WS_MINES_PLACE_AUTO_ROUND = 'mines:placeAutoRound' as const;
+export const WS_MINES_GET_ACTIVE_ROUND = 'mines:getActiveRound' as const;
+export const WS_PLINKO_PLACE_BET = 'plinko:placeBet' as const;
+export const WS_KENO_PLACE_BET = 'keno:placeBet' as const;

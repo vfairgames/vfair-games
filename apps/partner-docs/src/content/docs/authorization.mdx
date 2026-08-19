@@ -1,0 +1,120 @@
+---
+title: Authorization
+sidebar:
+  order: 2
+---
+
+# Authorization
+
+All server-to-server calls between your platform and VFair use **Bearer JWT** authentication.
+
+There is no HMAC or request-body signature. Both directions use the same partner secret.
+
+## Partner JWT
+
+Use a partner JWT when:
+
+- Your backend calls the VFair API (launch, verification, fairness)
+- VFair calls your wallet API (balance, transaction)
+
+### Claims
+
+| Claim | Required | Description                |
+| ----- | -------- | -------------------------- |
+| `sub` | Yes      | Your partner code          |
+| `iat` | Yes      | Issued-at (Unix timestamp) |
+| `exp` | Yes      | Expiry (Unix timestamp)    |
+
+| Property             | Value          |
+| -------------------- | -------------- |
+| Algorithm            | **HS256**      |
+| Recommended lifetime | **30 seconds** |
+
+```json
+{
+  "sub": "acme",
+  "iat": 1710000000,
+  "exp": 1710000030
+}
+```
+
+### Header
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+```
+
+### Signing example
+
+```typescript
+import jwt from 'jsonwebtoken';
+
+const token = jwt.sign({ sub: partnerCode }, partnerSecret, {
+  algorithm: 'HS256',
+  expiresIn: '30s',
+});
+```
+
+## Calling the VFair API
+
+VFair validates each inbound request as follows:
+
+1. Read `sub` from the JWT
+2. Load the partner secret for that code
+3. Verify signature and expiry
+4. Check the caller IP against your IP whitelist
+
+### IP whitelist
+
+Your account includes an IP whitelist for calls **to** the VFair API.
+
+| Format           | Example                                |
+| ---------------- | -------------------------------------- |
+| Exact IP         | `203.0.113.10`                         |
+| CIDR             | `203.0.113.0/24`                       |
+| Multiple entries | Comma, newline, or semicolon separated |
+| Allow all        | A single entry of `*`                  |
+
+If the caller IP is not allowed, the response status is **403** with:
+
+```json
+{
+  "err_code": "ip_not_allowed",
+  "message": "IP not allowed"
+}
+```
+
+## Validating wallet requests
+
+When VFair calls your wallet API, it sends a partner JWT signed with the same secret.
+
+Your wallet endpoints must:
+
+1. Verify the JWT signature with your partner secret
+2. Confirm `sub` matches your partner code
+3. Reject expired or invalid tokens
+
+## Session token (real mode only)
+
+After a successful real-mode launch, the game URL includes a **session JWT**. The game client uses it to connect to VFair over WebSocket. You do not create or manage this token yourself.
+
+| Property    | Value                                 |
+| ----------- | ------------------------------------- |
+| Lifetime    | 12 hours                              |
+| Signed with | Your partner secret                   |
+| Used by     | Game client → VFair WebSocket (`/ws`) |
+
+Demo launches do not include a session token.
+
+## Error shape
+
+VFair API errors return a JSON body with this shape (HTTP status is on the response status line):
+
+```json
+{
+  "err_code": "unknown_game",
+  "message": "Unknown game \"invalid_id\""
+}
+```
+
+Use `err_code` for programmatic handling. See [API reference](/api-reference/) for common codes.

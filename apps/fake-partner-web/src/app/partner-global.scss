@@ -1,0 +1,42 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+html:has(.radix-themes.light) {
+  color-scheme: light;
+  background-color: #fcfcfc;
+}
+
+html:has(.radix-themes.dark) {
+  color-scheme: dark;
+  background-color: #111111;
+}
+
+body {
+  font-family: var(--default-font-family);
+  background-color: inherit;
+  color: var(--gray-12);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+
+  > .radix-themes {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100dvh;
+    background-color: var(--gray-1);
+  }
+}

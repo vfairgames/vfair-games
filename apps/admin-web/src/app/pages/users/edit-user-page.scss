@@ -1,0 +1,11 @@
+.edit-user-page {
+  width: 100%;
+
+  &__card {
+    padding: var(--space-4);
+  }
+
+  &__tab-content {
+    padding-top: var(--space-4);
+  }
+}

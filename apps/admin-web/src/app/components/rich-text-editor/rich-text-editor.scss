@@ -1,0 +1,8 @@
+.rich-text-editor {
+  width: 100%;
+  isolation: isolate;
+
+  .tox-tinymce {
+    border-radius: var(--radius-3);
+  }
+}

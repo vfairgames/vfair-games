@@ -1,0 +1,10 @@
+.player-bet-detail-modal {
+  width: 100%;
+
+  &__outcome {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+    min-height: 12rem;
+  }
+}

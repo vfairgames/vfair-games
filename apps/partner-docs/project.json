@@ -1,0 +1,39 @@
+{
+  "name": "partner-docs",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/partner-docs/src",
+  "projectType": "application",
+  "tags": ["docs"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/partner-docs",
+        "command": "astro dev --port 4600 --host localhost"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/partner-docs"],
+      "options": {
+        "cwd": "apps/partner-docs",
+        "command": "astro build"
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "apps/partner-docs",
+        "command": "astro preview --port 4600 --host localhost"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/partner-docs",
+        "command": "node ../../node_modules/typescript/bin/tsc --noEmit"
+      }
+    }
+  }
+}

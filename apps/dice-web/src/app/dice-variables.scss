@@ -1,0 +1,43 @@
+.radix-themes {
+  --dice-slider-thumb-grip-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20' fill='none'%3E%3Cline x1='2' y1='2' x2='2' y2='18' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='8' y1='2' x2='8' y2='18' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='14' y1='2' x2='14' y2='18' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  --dice-slider-max-width: 650px;
+  --dice-slider-container-padding: var(--space-3);
+  --dice-slider-container-radius: 25px;
+  --dice-slider-inner-padding: var(--space-3);
+  --dice-slider-inner-radius: 20px;
+  --dice-slider-track-radius: 20px;
+  --dice-slider-track-height: var(--space-2);
+  --dice-slider-thumb-size: var(--space-6);
+  --dice-slider-triangle-width: 10px;
+  --dice-slider-triangle-height: 8px;
+  --dice-slider-label-font-size: var(--font-size-1);
+  --dice-slider-indicators-gap: 0px;
+  --dice-slider-bet-result-fade-out-time: 400ms;
+  --dice-slider-edge-inset: calc(
+    var(--dice-slider-container-padding) + var(--dice-slider-inner-padding)
+  );
+}
+
+.radix-themes.light {
+  --dice-slider-container-bg: var(--gray-4);
+  --dice-slider-inner-bg: var(--gray-1);
+  --dice-slider-lose-color: var(--red-9);
+  --dice-slider-win-color: var(--green-9);
+  --dice-slider-thumb-color: var(--blue-7);
+  --dice-slider-focus-color: var(--focus-8);
+  --dice-slider-label-color: var(--gray-11);
+  --dice-slider-thumb-icon-color: var(--blue-10);
+  --dice-slider-result-line-color: var(--gray-8);
+}
+
+.radix-themes.dark {
+  --dice-slider-container-bg: var(--gray-4);
+  --dice-slider-inner-bg: var(--gray-2);
+  --dice-slider-lose-color: var(--red-9);
+  --dice-slider-win-color: var(--green-9);
+  --dice-slider-thumb-color: var(--gray-12);
+  --dice-slider-focus-color: var(--focus-8);
+  --dice-slider-label-color: var(--gray-11);
+  --dice-slider-thumb-icon-color: var(--gray-9);
+  --dice-slider-result-line-color: white;
+}

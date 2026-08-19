@@ -1,0 +1,8 @@
+{
+  "name": "games-web-shell",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/games-web-shell/src",
+  "projectType": "library",
+  "tags": ["type:ui"],
+  "targets": {}
+}

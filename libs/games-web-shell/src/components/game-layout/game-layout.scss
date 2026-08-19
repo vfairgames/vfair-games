@@ -1,0 +1,104 @@
+// Matches game-layout.tsx: sidebar width, mobile breakpoint (desktop ≥768).
+$game-sidebar-width: 300px;
+$game-footer-height: 56px;
+$game-mobile-max: 767px;
+
+.game-layout-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  min-height: 100dvh;
+
+  @media (max-width: $game-mobile-max) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+}
+
+.game-layout-root {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+
+  @media (max-width: $game-mobile-max) {
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .game-layout-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    container-type: inline-size;
+
+    .game-layout-main {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .game-layout-game-controls {
+      order: 1;
+      width: $game-sidebar-width;
+      min-width: $game-sidebar-width;
+      background-color: var(--gray-1);
+      border-right: 1px solid var(--gray-8);
+    }
+
+    .game-layout-game-space {
+      order: 2;
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+      background-color: var(--gray-1);
+    }
+
+    .game-layout-footer {
+      flex-shrink: 0;
+      width: 100%;
+      height: $game-footer-height;
+      background-color: var(--gray-2);
+      border-top: 1px solid var(--gray-8);
+    }
+
+    &.game-layout-container--fluid {
+      height: auto;
+      min-height: min(100dvh, 100%);
+
+      html.game-embedded & {
+        min-height: 100%;
+      }
+
+      .game-layout-main {
+        grid-template-columns: 1fr;
+      }
+
+      .game-layout-game-controls {
+        order: 2;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .game-layout-game-space {
+        order: 1;
+      }
+    }
+  }
+}
+
+html.game-embedded .game-layout-shell {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+}

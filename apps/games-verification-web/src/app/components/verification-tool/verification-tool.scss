@@ -1,0 +1,47 @@
+.verification-tool {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--gray-1);
+  color: var(--gray-12);
+
+  &__logo {
+    display: block;
+    height: 32px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+  }
+
+  &__panel {
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-3);
+    background-color: var(--gray-2);
+    min-width: 0;
+  }
+
+  &__help-html {
+    font-size: var(--font-size-2);
+    line-height: var(--line-height-2);
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0 0 var(--space-2);
+    }
+
+    p {
+      margin: 0 0 var(--space-3);
+    }
+
+    ul,
+    ol {
+      margin: 0 0 var(--space-3);
+      padding-left: var(--space-4);
+    }
+
+    a {
+      color: var(--accent-11);
+    }
+  }
+}

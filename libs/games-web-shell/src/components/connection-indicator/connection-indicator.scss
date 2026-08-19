@@ -1,0 +1,19 @@
+.connection-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--connection-indicator-color);
+
+  &[data-state='connected'] {
+    --connection-indicator-color: var(--green-9);
+  }
+
+  &[data-state='reconnecting'] {
+    --connection-indicator-color: var(--amber-9);
+  }
+
+  &[data-state='disconnected'] {
+    --connection-indicator-color: var(--red-9);
+  }
+}

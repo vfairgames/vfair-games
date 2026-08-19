@@ -1,0 +1,196 @@
+---
+title: Wallet API
+sidebar:
+  order: 4
+---
+
+# Wallet API
+
+During real-money play, VFair calls **your** wallet API to read balances and settle bets.
+
+You configure a wallet base URL with VFair (for example `https://api.your-platform.com/wallet`). VFair appends the paths below.
+
+| Operation   | Method | URL                                       |
+| ----------- | ------ | ----------------------------------------- |
+| Balance     | `GET`  | `{walletUrl}/balance?playerId=&currency=` |
+| Transaction | `POST` | `{walletUrl}/transaction`                 |
+
+If no wallet URL is configured, real-mode wallet operations fail with `partner_wallet_unavailable`.
+
+Demo mode never calls your wallet.
+
+## Authentication
+
+Every request from VFair includes a partner JWT:
+
+```http
+Authorization: Bearer <partner-jwt>
+```
+
+Same format as [Authorization](/authorization/): `{ "sub": "<partnerCode>" }`, signed with your partner secret, short-lived (**30 seconds**).
+
+Validate the token before processing any wallet request.
+
+## GET /balance
+
+Returns the player's current balance for a currency.
+
+### Request
+
+```http
+GET /balance?playerId=player_42&currency=USD HTTP/1.1
+Host: api.your-platform.com
+Authorization: Bearer <partner-jwt>
+```
+
+| Query param | Type   | Required | Description                         |
+| ----------- | ------ | -------- | ----------------------------------- |
+| `playerId`  | string | Yes      | Same external ID you sent at launch |
+| `currency`  | string | Yes      | Currency code                       |
+
+### Response
+
+```json
+{
+  "balance": 1250.5
+}
+```
+
+| Field     | Type   | Description     |
+| --------- | ------ | --------------- |
+| `balance` | number | Current balance |
+
+## POST /transaction
+
+Debits or credits the player's wallet.
+
+### Request
+
+```http
+POST /transaction HTTP/1.1
+Host: api.your-platform.com
+Authorization: Bearer <partner-jwt>
+Content-Type: application/json
+```
+
+**Debit (bet placed):**
+
+```json
+{
+  "type": "DEBIT",
+  "playerId": "player_42",
+  "currency": "USD",
+  "amount": 10,
+  "requestId": "player_42:req-abc:bet",
+  "gameId": "v_dice"
+}
+```
+
+**Credit (payout — full return of stake + profit, or a Plinko/Keno partial return):**
+
+```json
+{
+  "type": "CREDIT",
+  "playerId": "player_42",
+  "currency": "USD",
+  "amount": 19.6,
+  "requestId": "player_42:req-abc:win",
+  "gameId": "v_dice",
+  "roundId": "12345"
+}
+```
+
+In that example, a `10` debit wins `9.6` profit, so CREDIT `amount` is `19.6` (`10` stake + `9.6` profit), not the profit alone.
+
+Plinko and Keno can also `CREDIT` after a lost round when the multiplier is below `1×` (partial stake return). Example: debit `10`, land on `0.5×` → `CREDIT` `5` with round status `LOST`. Treat every `CREDIT` as a balance increase; do not assume `CREDIT` means the round was won.
+
+### Body fields
+
+| Field       | Type   | Required | Description                                                                       |
+| ----------- | ------ | -------- | --------------------------------------------------------------------------------- |
+| `type`      | string | Yes      | `DEBIT` or `CREDIT`                                                               |
+| `playerId`  | string | Yes      | External player ID                                                                |
+| `currency`  | string | Yes      | Currency code                                                                     |
+| `amount`    | number | Yes      | Positive amount. For `CREDIT`, the full payout (`stake + profit`), not net profit |
+| `requestId` | string | Yes      | Idempotency key                                                                   |
+| `gameId`    | string | Yes      | Game ID                                                                           |
+| `roundId`   | string | No       | Round ID (included on `CREDIT`)                                                   |
+
+### Response
+
+```json
+{
+  "partnerTransactionId": "tx_9876",
+  "balance": 1240.5,
+  "balanceBefore": 1250.5
+}
+```
+
+| Field                  | Type   | Required | Description                                                                           |
+| ---------------------- | ------ | -------- | ------------------------------------------------------------------------------------- |
+| `partnerTransactionId` | string | Yes      | Your transaction reference. Must be unique per partner across all wallet transactions |
+| `balance`              | number | Yes      | Balance after the transaction                                                         |
+| `balanceBefore`        | number | No       | Balance before the transaction                                                        |
+
+### Transaction types
+
+| Type     | When                                                                                                                                                                                                                                                                         |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DEBIT`  | Player places a bet                                                                                                                                                                                                                                                          |
+| `CREDIT` | Payout to the player. `amount` is the full return (`stake + profit`). Dice, Limbo, and Mines send no `CREDIT` on a full loss — only the earlier `DEBIT` applies. Plinko and Keno may still `CREDIT` a partial return when the round is lost and the multiplier is below `1×` |
+
+## Idempotency
+
+Treat `requestId` as an idempotency key.
+
+Typical values from VFair:
+
+```text
+{playerId}:{clientRequestId}:bet   → DEBIT
+{playerId}:{clientRequestId}:win   → CREDIT
+```
+
+Rules:
+
+- Same `requestId` with the same fields → return the **original response** without applying the transaction again (same `partnerTransactionId` and balances)
+- Same `requestId` with different fields → reject (for example HTTP `409`)
+- Never reuse a `partnerTransactionId` for a different `requestId` — VFair stores it uniquely per partner and a collision fails after your wallet has already moved money
+
+VFair retries failed wallet calls, so non-idempotent handling can double-debit or double-credit.
+
+## Retries and timeouts
+
+| Setting  | Value                      |
+| -------- | -------------------------- |
+| Attempts | Up to 3                    |
+| Timeout  | 10 seconds per attempt     |
+| Backoff  | Exponential (250 ms → 2 s) |
+
+Retried: network errors, timeouts, HTTP `408`, `429`, and `5xx`.
+
+Not retried: other `4xx` responses.
+
+Aim for sub-second latency. Always respond within the timeout.
+
+## Recommended error responses
+
+Return a clear HTTP status and JSON body. Suggested codes:
+
+| Situation              | HTTP | Suggested err_code     |
+| ---------------------- | ---- | ---------------------- |
+| Unknown player         | 404  | `player_not_found`     |
+| No wallet for currency | 404  | `wallet_not_found`     |
+| Insufficient funds     | 400  | `insufficient_balance` |
+| Idempotency conflict   | 409  | `idempotency_conflict` |
+| Invalid / expired JWT  | 401  | —                      |
+
+## Implementation checklist
+
+1. Expose `GET /balance` and `POST /transaction` under your wallet base URL
+2. Validate the partner JWT on every request
+3. Use the launch `playerId` as your wallet key
+4. Enforce idempotency on `requestId` and keep `partnerTransactionId` unique per partner
+5. Serialize concurrent updates on the same wallet
+6. Return the post-transaction `balance`
+7. Keep responses under 10 seconds
+8. Credit payouts as the full return (`stake + profit`). Full losses send no credit. Plinko and Keno may credit a partial return on a lost round when the multiplier is below `1×`

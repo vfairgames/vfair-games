@@ -1,0 +1,132 @@
+.plinko-buckets {
+  flex-shrink: 0;
+  align-self: center;
+  box-sizing: border-box;
+  padding-top: 6px;
+  padding-bottom: 4px;
+  max-width: 100%;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(
+      var(--plinko-buckets-count, 9),
+      minmax(0, 1fr)
+    );
+    gap: clamp(1px, 0.6vw, 4px);
+    width: 100%;
+  }
+
+  &__bucket {
+    position: relative;
+    min-width: 0;
+    height: 1.35em;
+    border-radius: 0.3em;
+    container-type: inline-size;
+    transform-origin: center bottom;
+    cursor: default;
+    animation-timing-function: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+
+  &__bucket::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    border-radius: inherit;
+    z-index: 1;
+  }
+
+  &__label {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding-inline: 1px;
+    overflow: hidden;
+    color: rgb(0 0 0 / 85%);
+    font-size: clamp(0.4rem, 28cqw, 0.72rem);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    transform-origin: center bottom;
+  }
+
+  &__bucket--sliding {
+    animation-name: plinko-buckets-slide;
+    animation-duration: var(--plinko-slide-duration, 300ms);
+  }
+
+  &__bucket--sliding.plinko-buckets__bucket--scaling {
+    z-index: 2;
+    animation-name: plinko-buckets-slide, plinko-buckets-scale;
+    animation-duration:
+      var(--plinko-slide-duration, 300ms), var(--plinko-scale-duration, 800ms);
+    animation-timing-function: cubic-bezier(0.18, 0.89, 0.32, 1.28), ease-out;
+  }
+
+  &__bucket--scaling .plinko-buckets__label {
+    animation-name: plinko-buckets-counter-scale;
+    animation-duration: var(--plinko-scale-duration, 800ms);
+    animation-timing-function: ease-out;
+  }
+
+  &__bucket--color-transition {
+    transition:
+      background-color var(--plinko-color-swap-duration, 300ms) ease-out,
+      box-shadow var(--plinko-color-swap-duration, 300ms) ease-out;
+  }
+}
+
+@keyframes plinko-buckets-slide {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 30%;
+  }
+}
+
+@keyframes plinko-buckets-scale {
+  0% {
+    scale: 1;
+  }
+
+  20% {
+    scale: 0.95;
+  }
+
+  35%,
+  90% {
+    scale: 1.5;
+  }
+
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes plinko-buckets-counter-scale {
+  0% {
+    scale: 1;
+  }
+
+  20% {
+    scale: 1.0526315789;
+  }
+
+  35%,
+  90% {
+    scale: 0.6666666667;
+  }
+
+  100% {
+    scale: 1;
+  }
+}

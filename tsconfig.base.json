@@ -1,0 +1,36 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "@vfair/app-common": ["libs/app-common/src/index.ts"],
+      "@vfair/game-math": ["./libs/game-math/src/index.ts"],
+      "@vfair/game-contracts": ["./libs/game-contracts/src/index.ts"],
+      "@vfair/radix-palette": ["./libs/radix-palette/src/index.ts"],
+      "@vfair/games-web-shell": ["./libs/games-web-shell/src/index.ts"],
+      "@vfair/games-web-shell/global-reset-styles": [
+        "./libs/games-web-shell/src/global-reset-styles.ts"
+      ],
+      "@vfair/prisma-client": ["./generated/prisma/client.ts"],
+      "@vfair/prisma-partner-client": [
+        "./generated/prisma-partner-api/client.ts"
+      ],
+      "@vfair/nest-utils": ["./libs/nest-utils/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

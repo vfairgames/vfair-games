@@ -1,0 +1,115 @@
+.combobox-select {
+  &__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    height: var(--admin-control-height);
+    padding: 0 var(--space-2);
+    border: 1px solid var(--gray-a7);
+    border-radius: var(--radius-2);
+    background-color: var(--color-surface);
+    color: var(--gray-12);
+    font-family: var(--default-font-family);
+    font-size: var(--font-size-2);
+    text-align: left;
+    cursor: pointer;
+    transition: box-shadow 80ms;
+
+    &:hover {
+      background-color: var(--gray-a2);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-8);
+      outline-offset: -1px;
+      border-color: var(--accent-8);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &--error {
+      border-color: var(--red-8);
+      box-shadow: inset 0 0 0 1px var(--red-8);
+      color: var(--red-11);
+    }
+  }
+
+  &__trigger-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--placeholder {
+      color: var(--gray-a10);
+    }
+  }
+
+  &__option-content {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  &__caret {
+    flex-shrink: 0;
+    color: var(--gray-9);
+  }
+
+  &__content {
+    width: var(--radix-popover-trigger-width);
+    padding: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  &__list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0 calc(var(--space-2) * -1);
+    padding: 0 var(--space-2);
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-1) var(--space-2);
+    border: none;
+    border-radius: var(--radius-1);
+    background: none;
+    color: var(--gray-12);
+    font-family: var(--default-font-family);
+    font-size: var(--font-size-2);
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--gray-a3);
+    }
+
+    &--selected {
+      background-color: var(--accent-a3);
+      color: var(--accent-11);
+      font-weight: 500;
+    }
+  }
+
+  &__empty {
+    padding: var(--space-3) var(--space-2);
+    color: var(--gray-10);
+    font-size: var(--font-size-2);
+    text-align: center;
+  }
+}

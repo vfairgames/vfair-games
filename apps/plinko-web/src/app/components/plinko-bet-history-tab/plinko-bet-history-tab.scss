@@ -1,0 +1,111 @@
+.plinko-bet-history-tab {
+  --plinko-bet-history-tab-columns: minmax(0, 1.1fr) minmax(0, 0.85fr)
+    minmax(0, 1.35fr);
+
+  width: 100%;
+  min-width: 0;
+  max-height: 20rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  &__header,
+  &__row {
+    display: grid;
+    grid-template-columns: var(--plinko-bet-history-tab-columns);
+    align-items: start;
+    column-gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--gray-5);
+  }
+
+  &__header {
+    padding-top: 0;
+  }
+
+  &__header-cell {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--gray-11);
+
+    &--bet {
+      text-align: center;
+    }
+
+    &--cash-out {
+      text-align: right;
+    }
+  }
+
+  &__row {
+    transition: background-color 120ms ease;
+    cursor: pointer;
+
+    &:hover {
+      background: color-mix(in srgb, var(--gray-4) 55%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-8);
+      outline-offset: -2px;
+    }
+  }
+
+  &__date,
+  &__bet {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__date-line {
+    color: var(--gray-11);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+
+    &--muted {
+      color: var(--gray-9);
+    }
+  }
+
+  &__bet {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__cash-out {
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+
+  &__cash-out-amount,
+  &__multiplier,
+  &__demo-tag {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+
+    &--won {
+      color: var(--green-11);
+    }
+
+    &--lost {
+      color: var(--gray-11);
+    }
+  }
+
+  &__multiplier--lost {
+    color: var(--gray-9);
+  }
+
+  &__demo-tag {
+    color: var(--gray-9);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__chevron {
+    color: var(--gray-9);
+    flex-shrink: 0;
+  }
+}

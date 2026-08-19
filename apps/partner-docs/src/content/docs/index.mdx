@@ -1,0 +1,110 @@
+---
+title: Overview
+description: Integrate VFair games into your platform with launch URLs and a partner wallet API.
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Integrate VFair games into your platform with two server-to-server flows:
+
+1. **Your backend → VFair** — request a game launch URL for a player
+2. **VFair → your backend** — read balance and settle bets through your wallet API
+
+Players open the returned game URL (iframe or redirect). The game client talks to VFair directly; you do not proxy gameplay traffic.
+
+## Architecture
+
+```text
+Your backend                         VFair API
+     │                                    │
+     │  POST /api/launch                  │
+     │  (partner JWT)                     │
+     ├───────────────────────────────────►│
+     │◄───────────────────────────────────┤  { url }
+     │                                    │
+     │  GET  /balance                     │
+     │  POST /transaction                 │
+     │  (partner JWT)                     │
+     │◄───────────────────────────────────┤
+     │                                    │
+Player browser ── game URL ──────────────►│  game + session
+```
+
+## What you need from VFair
+
+Before integrating, VFair provisions your partner account with:
+
+| Item           | Purpose                                       |
+| -------------- | --------------------------------------------- |
+| Partner code   | Stable identifier used as the JWT `sub` claim |
+| Partner secret | Shared secret for signing and verifying JWTs  |
+| IP whitelist   | Allowed source IPs for calls to the VFair API |
+| Wallet URL     | Base URL of your wallet API (called by VFair) |
+| Enabled games  | Game IDs and RTP configured for your account  |
+| Currencies     | Allowed currencies and bet limits             |
+
+## Integration steps
+
+<CardGrid>
+  <Card title="1. Authorize" icon="seti:lock">
+    Sign short-lived JWTs with your partner secret.
+  </Card>
+  <Card title="2. Launch" icon="rocket">
+    Call `POST /api/launch` and open the returned URL for the player.
+  </Card>
+  <Card title="3. Wallet" icon="seti:json">
+    Expose balance and transaction endpoints for real-money play.
+  </Card>
+</CardGrid>
+
+## Base URL
+
+| Environment | Base URL                                                        |
+| ----------- | --------------------------------------------------------------- |
+| Production  | Provided by VFair (for example `https://games-api.example.com`) |
+
+All partner API paths are under `/api`.
+
+## Supported games
+
+| Game ID    | Name   |
+| ---------- | ------ |
+| `v_dice`   | Dice   |
+| `v_limbo`  | Limbo  |
+| `v_plinko` | Plinko |
+| `v_mines`  | Mines  |
+| `v_keno`   | Keno   |
+
+## Play modes
+
+| Mode   | Behavior                                                   |
+| ------ | ---------------------------------------------------------- |
+| `real` | Full session. Balance and bets go through your wallet API. |
+| `demo` | Fun play only. No session token and no wallet calls.       |
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="Authorization"
+    href="/authorization/"
+    description="Partner JWTs, IP whitelist, and session tokens."
+  />
+  <LinkCard
+    title="Launch game"
+    href="/launch-url/"
+    description="Request a game URL and open it for the player."
+  />
+  <LinkCard
+    title="Wallet API"
+    href="/wallet-api/"
+    description="Balance and transaction endpoints VFair calls."
+  />
+  <LinkCard
+    title="API reference"
+    href="/api-reference/"
+    description="Endpoints, hosts, error codes, and glossary."
+  />
+</CardGrid>

@@ -1,0 +1,63 @@
+---
+title: API reference
+sidebar:
+  order: 5
+---
+
+# API reference
+
+## VFair API
+
+Base URL: provided by VFair (for example `https://games-api.example.com`)
+
+| Method | Path                            | Auth        | Description                    |
+| ------ | ------------------------------- | ----------- | ------------------------------ |
+| `POST` | `/api/launch`                   | Partner JWT | Create a game launch URL       |
+| `POST` | `/api/verification/launch`      | Partner JWT | Create a verification tool URL |
+| `GET`  | `/api/rounds/:roundId/fairness` | Partner JWT | Fetch round fairness data      |
+| `GET`  | `/api/health`                   | None        | Liveness check                 |
+
+All partner-authenticated calls also require an IP on your whitelist.
+
+## Your wallet API
+
+Base URL: the wallet URL configured for your partner account.
+
+| Method | Path           | Auth        | Description                |
+| ------ | -------------- | ----------- | -------------------------- |
+| `GET`  | `/balance`     | Partner JWT | Return player balance      |
+| `POST` | `/transaction` | Partner JWT | Debit or credit the wallet |
+
+## Game hosts
+
+Launch URLs use the game and verification hosts configured for your environment.
+
+## Common error codes
+
+| err_code                         | Typical HTTP         | Meaning                                      |
+| -------------------------------- | -------------------- | -------------------------------------------- |
+| `ip_not_allowed`                 | 403                  | Caller IP is not whitelisted                 |
+| `partner_code_mismatch`          | 400                  | Request partner code does not match JWT      |
+| `unknown_game`                   | 400                  | Unknown game ID                              |
+| `game_not_configured`            | 403                  | Game not configured for partner              |
+| `game_disabled`                  | 403                  | Game disabled for partner                    |
+| `currency_not_configured`        | 400                  | Currency not configured for partner          |
+| `active_round_currency_mismatch` | 400                  | Active round exists in another currency      |
+| `partner_wallet_unavailable`     | 400                  | Wallet URL is not configured                 |
+| `invalid_round_id`               | 400                  | Fairness `roundId` is not a positive integer |
+| `round_not_found`                | 404                  | Fairness round missing, not yours, or failed |
+| `partner_wallet_error`           | partner status / 502 | Your wallet API failed or was unreachable    |
+
+When your wallet returns an error, VFair maps it to `partner_wallet_error` for the game session. Keep clear status codes and bodies on your wallet API so you can diagnose failures from logs.
+
+## Glossary
+
+| Term                   | Meaning                                                         |
+| ---------------------- | --------------------------------------------------------------- |
+| Partner code           | Your stable partner identifier (`sub` in JWTs)                  |
+| Partner secret         | Shared secret used to sign and verify JWTs                      |
+| Player ID              | Your external player key, sent at launch and in wallet calls    |
+| Wallet URL             | Base URL of your balance/transaction API                        |
+| Session token          | JWT embedded in real-mode launch URLs for the game client       |
+| Request ID             | Idempotency key for wallet transactions                         |
+| Partner transaction ID | Your wallet's transaction reference; must be unique per partner |

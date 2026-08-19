@@ -1,0 +1,6 @@
+const MINES_GRID_SIDE = 5;
+export const MINES_GRID_SIZE = MINES_GRID_SIDE * MINES_GRID_SIDE;
+export const MIN_MINE_COUNT = 1;
+export const MAX_MINE_COUNT = MINES_GRID_SIZE - 1;
+export const DEFAULT_MINE_COUNT = 3;
+export const MINES_MULTIPLIER_DECIMALS = 2;

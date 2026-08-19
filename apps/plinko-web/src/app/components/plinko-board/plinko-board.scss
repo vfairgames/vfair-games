@@ -1,0 +1,14 @@
+.plinko-board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 760 / 570;
+  background: var(--gray-1);
+  border-radius: var(--radius-3);
+  overflow: hidden;
+
+  &__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}

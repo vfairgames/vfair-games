@@ -1,0 +1,15 @@
+.partners-page {
+  width: 100%;
+
+  &__row {
+    cursor: pointer;
+
+    &:hover {
+      --table-row-background-color: var(--gray-a3);
+    }
+  }
+
+  &__actions-col {
+    text-align: right;
+  }
+}

@@ -1,0 +1,31 @@
+$mobile-breakpoint: 768px;
+
+.admin-layout {
+  height: 100vh;
+  overflow: hidden;
+
+  &__main {
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  &__content {
+    overflow-y: auto;
+    background-color: var(--gray-1);
+    height: 100%;
+  }
+
+  &__backdrop {
+    display: none;
+  }
+
+  @media (max-width: $mobile-breakpoint) {
+    &__backdrop--visible {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+  }
+}

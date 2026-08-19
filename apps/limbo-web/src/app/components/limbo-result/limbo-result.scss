@@ -1,0 +1,22 @@
+.limbo-result {
+  min-height: 200px;
+
+  &__multiplier {
+    font-size: clamp(3.5rem, 8vw, 5.5rem);
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+
+    &--idle {
+      color: var(--gray-9);
+    }
+
+    &--won {
+      color: var(--green-11);
+    }
+
+    &--lost {
+      color: var(--red-11);
+    }
+  }
+}

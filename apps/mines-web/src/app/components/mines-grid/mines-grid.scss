@@ -1,0 +1,13 @@
+.mines-grid-stage {
+  position: relative;
+  width: min(100%, 36rem);
+  margin-inline: auto;
+}
+
+.mines-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+}

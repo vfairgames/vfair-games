@@ -1,0 +1,28 @@
+:root,
+::backdrop {
+  --sl-color-accent-low: #d6e8ff;
+  --sl-color-accent: #0074fc;
+  --sl-color-accent-high: #003d85;
+  --sl-font:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  --sl-font-mono:
+    ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  --sl-content-width: 48rem;
+}
+
+:root[data-theme='dark'],
+[data-theme='dark'] ::backdrop {
+  --sl-color-accent-low: #0b2554;
+  --sl-color-accent: #3d94fd;
+  --sl-color-accent-high: #b8d7fe;
+}
+
+.site-title img {
+  border-radius: 0.4rem;
+}
+
+.sl-markdown-content table {
+  display: table;
+  width: 100%;
+}

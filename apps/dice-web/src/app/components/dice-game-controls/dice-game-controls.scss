@@ -1,0 +1,10 @@
+.dice-game-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-2);
+  align-items: end;
+
+  &__roll_slot {
+    padding-right: var(--space-1);
+  }
+}

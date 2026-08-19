@@ -1,0 +1,49 @@
+.partner-theme-editor-preview {
+  min-width: 0;
+  flex: 1;
+  padding-left: var(--space-4);
+
+  &__header .form-select {
+    min-width: 6rem;
+  }
+
+  &__currency-select {
+    min-width: 9rem;
+  }
+
+  &__frame {
+    position: relative;
+    width: 100%;
+
+    &:fullscreen {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background-color: var(--color-background);
+
+      .partner-theme-editor-preview__iframe {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        border: none;
+        border-radius: 0;
+      }
+    }
+  }
+
+  &__fullscreen-button {
+    position: absolute;
+    top: var(--space-5);
+    right: var(--space-5);
+    z-index: 1;
+  }
+
+  &__iframe {
+    width: 100%;
+    min-height: 600px;
+    border: 1px solid var(--gray-a5);
+    border-radius: var(--radius-3);
+    background-color: var(--color-background);
+  }
+}

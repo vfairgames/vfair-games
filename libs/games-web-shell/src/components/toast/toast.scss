@@ -1,0 +1,235 @@
+.toast-viewport {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 360px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: none;
+}
+
+.toast-item {
+  display: grid;
+  grid-template-areas:
+    'title'
+    'description';
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-3);
+}
+
+.toast-item--closable {
+  grid-template-areas:
+    'title close'
+    'description close';
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-2);
+}
+
+.toast-item--title-only {
+  grid-template-areas: 'title';
+  align-items: center;
+}
+
+.toast-item--title-only.toast-item--closable {
+  grid-template-areas: 'title close';
+}
+
+.toast-item--title-only .toast-item__close {
+  align-self: center;
+}
+
+.toast-item[data-state='open'] {
+  animation: toast-slide-in 200ms ease-out;
+}
+
+.toast-item[data-state='closed'] {
+  animation: toast-slide-out 200ms ease-in forwards;
+}
+
+.toast-item[data-swipe='move'] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+
+.toast-item[data-swipe='cancel'] {
+  transform: translateX(0);
+  transition: transform 200ms ease-out;
+}
+
+.toast-item[data-swipe='end'] {
+  animation: toast-swipe-out 200ms ease-in forwards;
+}
+
+.toast-item--default {
+  background: var(--color-panel-solid);
+  border-color: var(--gray-a6);
+  color: var(--gray-12);
+
+  .toast-item__description {
+    color: var(--gray-11);
+  }
+
+  .toast-item__close {
+    color: var(--gray-11);
+  }
+
+  .toast-item__close:hover {
+    background: var(--gray-a3);
+    color: var(--gray-12);
+  }
+}
+
+.toast-item--success {
+  background: var(--green-3);
+  border-color: var(--green-a6);
+  color: var(--green-12);
+
+  .toast-item__description {
+    color: var(--green-11);
+  }
+
+  .toast-item__close {
+    color: var(--green-11);
+  }
+
+  .toast-item__close:hover {
+    background: var(--green-a4);
+    color: var(--green-12);
+  }
+}
+
+.toast-item--error {
+  background: var(--red-3);
+  border-color: var(--red-a6);
+  color: var(--red-12);
+
+  .toast-item__description {
+    color: var(--red-11);
+  }
+
+  .toast-item__close {
+    color: var(--red-11);
+  }
+
+  .toast-item__close:hover {
+    background: var(--red-a4);
+    color: var(--red-12);
+  }
+}
+
+.toast-item--warning {
+  background: var(--amber-3);
+  border-color: var(--amber-a6);
+  color: var(--amber-12);
+
+  .toast-item__description {
+    color: var(--amber-11);
+  }
+
+  .toast-item__close {
+    color: var(--amber-11);
+  }
+
+  .toast-item__close:hover {
+    background: var(--amber-a4);
+    color: var(--amber-12);
+  }
+}
+
+.toast-item--info {
+  background: var(--blue-3);
+  border-color: var(--blue-a6);
+  color: var(--blue-12);
+
+  .toast-item__description {
+    color: var(--blue-11);
+  }
+
+  .toast-item__close {
+    color: var(--blue-11);
+  }
+
+  .toast-item__close:hover {
+    background: var(--blue-a4);
+    color: var(--blue-12);
+  }
+}
+
+.toast-item__title {
+  grid-area: title;
+  font-size: var(--font-size-2);
+  font-weight: 500;
+  line-height: var(--line-height-2);
+}
+
+.toast-item__description {
+  grid-area: description;
+  font-size: var(--font-size-1);
+  line-height: var(--line-height-1);
+}
+
+.toast-item__close {
+  grid-area: close;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  border: none;
+  border-radius: var(--radius-2);
+  background: transparent;
+  cursor: pointer;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(calc(100% + var(--space-4)));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(calc(100% + var(--space-4)));
+    opacity: 0;
+  }
+}
+
+@keyframes toast-swipe-out {
+  from {
+    transform: translateX(var(--radix-toast-swipe-end-x));
+  }
+
+  to {
+    transform: translateX(calc(100% + var(--space-4)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-item[data-state='open'],
+  .toast-item[data-state='closed'],
+  .toast-item[data-swipe='end'] {
+    animation: none;
+  }
+
+  .toast-item[data-swipe='cancel'] {
+    transition: none;
+  }
+}

@@ -1,0 +1,78 @@
+.segmented-tabs {
+  --segmented-tabs-padding: 3px;
+  --segmented-tabs-radius: 999px;
+  --segmented-tabs-indicator-scale: 1;
+
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(var(--segmented-tabs-count, 2), minmax(0, 1fr));
+  width: 100%;
+  padding: var(--segmented-tabs-padding);
+  border-radius: var(--segmented-tabs-radius);
+  background: var(--gray-4);
+  isolation: isolate;
+
+  &[data-indicator-stretch='right'],
+  &[data-indicator-stretch='left'] {
+    --segmented-tabs-indicator-scale: 1.07;
+  }
+
+  .segmented-tabs__indicator {
+    position: absolute;
+    top: var(--segmented-tabs-padding);
+    right: auto;
+    bottom: var(--segmented-tabs-padding);
+    left: var(--segmented-tabs-padding);
+    width: calc(
+      (100% - (var(--segmented-tabs-padding) * 2)) /
+        var(--segmented-tabs-count, 2)
+    );
+    border-radius: var(--segmented-tabs-radius);
+    background: var(--gray-1);
+    pointer-events: none;
+    z-index: 0;
+    transform: translateX(calc(var(--segmented-tabs-active-index, 0) * 100%))
+      scaleX(var(--segmented-tabs-indicator-scale));
+    transform-origin: center center;
+    transition:
+      transform 160ms ease,
+      opacity 120ms ease;
+  }
+
+  &[data-indicator-anchor='left'] .segmented-tabs__indicator {
+    transform-origin: left center;
+  }
+
+  &[data-indicator-anchor='right'] .segmented-tabs__indicator {
+    transform-origin: right center;
+  }
+
+  .segmented-tabs__tab {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 35px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--segmented-tabs-radius);
+    background: transparent;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--gray-12);
+    transition:
+      color 120ms ease,
+      opacity 120ms ease;
+
+    &[aria-selected='true'] {
+      color: var(--gray-12, currentColor);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+  }
+}

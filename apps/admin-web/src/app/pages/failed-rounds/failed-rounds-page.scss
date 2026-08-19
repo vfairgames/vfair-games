@@ -1,0 +1,23 @@
+.failed-rounds-page {
+  width: 100%;
+
+  &__row {
+    cursor: pointer;
+
+    &:hover {
+      --table-row-background-color: var(--gray-a3);
+    }
+  }
+
+  &__link {
+    all: unset;
+    cursor: pointer;
+    color: var(--accent-11);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+
+    &:hover {
+      color: var(--accent-12);
+    }
+  }
+}

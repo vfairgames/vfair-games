@@ -1,0 +1,18 @@
+$mobile-breakpoint: 768px;
+
+.header {
+  height: 56px;
+  min-height: 56px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--gray-4);
+
+  &__menu-btn {
+    display: none;
+  }
+
+  @media (max-width: $mobile-breakpoint) {
+    &__menu-btn {
+      display: flex;
+    }
+  }
+}

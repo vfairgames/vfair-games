@@ -1,0 +1,76 @@
+.mines-win-popover {
+  --mines-win-popover-border: var(--green-9);
+  --mines-win-popover-text: var(--green-11);
+  --mines-win-popover-bg: var(--gray-2);
+  --mines-win-popover-divider: var(--gray-6);
+  --mines-win-popover-shadow:
+    0 3px 5px -1px var(--black-a4), 0 6px 10px 0 var(--black-a3),
+    0 1px 18px 0 var(--black-a2);
+
+  .light & {
+    --mines-win-popover-border: var(--green-9);
+    --mines-win-popover-text: var(--green-11);
+    --mines-win-popover-bg: var(--gray-1);
+    --mines-win-popover-divider: var(--gray-6);
+    --mines-win-popover-shadow:
+      0 3px 5px -1px var(--black-a4), 0 6px 10px 0 var(--black-a3),
+      0 1px 18px 0 var(--black-a2);
+  }
+
+  .dark & {
+    --mines-win-popover-border: var(--green-9);
+    --mines-win-popover-text: var(--green-9);
+    --mines-win-popover-bg: var(--gray-3);
+    --mines-win-popover-divider: var(--gray-6);
+    --mines-win-popover-shadow:
+      0 3px 5px -1px var(--black-a6), 0 6px 10px 0 var(--black-a5),
+      0 1px 18px 0 var(--black-a4);
+  }
+
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 8.5rem;
+  padding: var(--space-4) var(--space-5);
+  border: 3px solid var(--mines-win-popover-border);
+  border-radius: var(--radius-4);
+  background: var(--mines-win-popover-bg);
+  box-shadow: var(--mines-win-popover-shadow);
+  color: var(--mines-win-popover-text);
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.mines-win-popover__multiplier {
+  font-size: var(--font-size-6);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+}
+
+.mines-win-popover__divider {
+  width: 55%;
+  height: 1px;
+  background: var(--mines-win-popover-divider);
+}
+
+.mines-win-popover__payout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-3);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.mines-win-popover__flag {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  background-size: cover;
+}

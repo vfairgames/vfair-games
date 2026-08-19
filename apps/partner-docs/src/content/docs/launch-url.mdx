@@ -1,0 +1,144 @@
+---
+title: Launch game
+sidebar:
+  order: 3
+---
+
+# Launch game
+
+Request a game URL from the VFair API, then open it for the player (iframe or redirect).
+
+**Authentication:** Partner JWT — see [Authorization](/authorization/).
+
+## Endpoint
+
+```http
+POST https://games-api.example.com/api/launch
+Authorization: Bearer <partner-jwt>
+Content-Type: application/json
+```
+
+## Request body
+
+| Field         | Type   | Required | Description                                             |
+| ------------- | ------ | -------- | ------------------------------------------------------- |
+| `partnerCode` | string | Yes      | Must match the authenticated partner (`sub`)            |
+| `gameId`      | string | Yes      | `v_dice`, `v_limbo`, `v_mines`, `v_plinko`, or `v_keno` |
+| `playerId`    | string | Yes      | Your player identifier (max 255 characters)             |
+| `currency`    | string | Yes      | Currency code configured for your account               |
+| `mode`        | string | Yes      | `real` or `demo`                                        |
+| `lang`        | string | No       | UI language code (for example `en`)                     |
+| `appearance`  | string | No       | `light` or `dark`                                       |
+
+### Example
+
+```json
+{
+  "partnerCode": "acme",
+  "gameId": "v_dice",
+  "playerId": "player_42",
+  "currency": "USD",
+  "mode": "real",
+  "lang": "en",
+  "appearance": "dark"
+}
+```
+
+## Response
+
+```json
+{
+  "url": "https://dice.example.com/?settings=eyJsYW5nIjoiZW4iLCJydHAiOjAuOTg..."
+}
+```
+
+| Field | Type   | Description                         |
+| ----- | ------ | ----------------------------------- |
+| `url` | string | Full game URL with encoded settings |
+
+Open this URL in an iframe or new window. Allow the game origin in your Content Security Policy if you use an iframe.
+
+```html
+<iframe src="{url}" title="Game" allow="fullscreen"></iframe>
+```
+
+## Real vs demo
+
+|               | Real                            | Demo         |
+| ------------- | ------------------------------- | ------------ |
+| Session       | Created and embedded in the URL | None         |
+| Wallet calls  | Yes                             | No           |
+| Player record | Upserted by `playerId`          | Not required |
+
+In real mode, launch fails if the player already has an **active round** for the same game in a **different currency**.
+
+## Game URLs
+
+Returned hostnames are configured by VFair for your environment (for example `https://dice.example.com`).
+
+The `settings` query parameter is a URL-encoded Base64 JSON payload. It includes theme, currency limits, RTP, language, and (in real mode) the session token. You do not need to decode or modify it.
+
+## Verification tool
+
+Launch the provably fair verification tool for your enabled games:
+
+```http
+POST https://games-api.example.com/api/verification/launch
+Authorization: Bearer <partner-jwt>
+Content-Type: application/json
+```
+
+| Field         | Type   | Required | Description       |
+| ------------- | ------ | -------- | ----------------- |
+| `partnerCode` | string | Yes      | Your partner code |
+| `lang`        | string | No       | UI language       |
+| `appearance`  | string | No       | `light` or `dark` |
+
+Response shape is the same: `{ "url": "..." }` (hosted on the verification tool origin configured by VFair).
+
+## Round fairness
+
+Fetch fairness data for a settled round:
+
+```http
+GET https://games-api.example.com/api/rounds/{roundId}/fairness
+Authorization: Bearer <partner-jwt>
+```
+
+```json
+{
+  "roundId": "12345",
+  "gameId": "v_dice",
+  "status": "won",
+  "fairness": {
+    "serverSeedHash": "...",
+    "clientSeed": "...",
+    "nonce": 1,
+    "serverSeed": null
+  },
+  "settledAt": 1710000000000
+}
+```
+
+| Field        | Notes                                                |
+| ------------ | ---------------------------------------------------- |
+| `status`     | `won`, `lost`, or `active`                           |
+| `serverSeed` | `string` when the seed is revealed; otherwise `null` |
+| `settledAt`  | Unix ms timestamp, or `null` for active rounds       |
+
+| err_code           | HTTP | Meaning                             |
+| ------------------ | ---- | ----------------------------------- |
+| `invalid_round_id` | 400  | `roundId` is not a positive integer |
+| `round_not_found`  | 404  | Round missing, not yours, or failed |
+
+## Common launch errors
+
+| err_code                         | HTTP | Meaning                                           |
+| -------------------------------- | ---- | ------------------------------------------------- |
+| `partner_code_mismatch`          | 400  | Body `partnerCode` does not match the JWT partner |
+| `unknown_game`                   | 400  | Unknown `gameId`                                  |
+| `game_not_configured`            | 403  | Game is not set up for your account               |
+| `game_disabled`                  | 403  | Game is disabled for your account                 |
+| `currency_not_configured`        | 400  | Currency is not configured for your account       |
+| `active_round_currency_mismatch` | 400  | Active round exists in another currency           |
+| `ip_not_allowed`                 | 403  | Caller IP is not whitelisted                      |

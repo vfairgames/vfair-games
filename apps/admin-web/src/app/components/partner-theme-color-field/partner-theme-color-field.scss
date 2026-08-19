@@ -1,0 +1,14 @@
+.partner-theme-color-field__row {
+  align-items: center;
+}
+
+.partner-theme-color-field__input {
+  width: var(--space-6);
+  height: var(--space-6);
+  padding: 0;
+  border: 1px solid var(--gray-a6);
+  border-radius: var(--radius-2);
+  background-color: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}

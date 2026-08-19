@@ -1,0 +1,21 @@
+.keno-grid-stage {
+  position: relative;
+  width: min(100%, 42rem);
+  margin-inline: auto;
+}
+
+.keno-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-4);
+}
+
+@media (max-width: 767px) {
+  .keno-grid {
+    row-gap: var(--space-3);
+    column-gap: var(--space-1);
+    padding: var(--space-2);
+  }
+}

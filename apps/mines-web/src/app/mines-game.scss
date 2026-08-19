@@ -1,0 +1,9 @@
+.mines-game__card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: min(100%, 32rem);
+  height: 100%;
+  background: var(--gray-1);
+}

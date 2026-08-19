@@ -1,0 +1,20 @@
+.failed-round-detail-page {
+  width: 100%;
+
+  &__json {
+    min-height: 16rem;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+  }
+
+  &__transactions,
+  &__events {
+    overflow-x: auto;
+  }
+
+  &__event-note {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}

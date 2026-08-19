@@ -1,0 +1,52 @@
+.game-card {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  overflow: visible;
+  box-shadow: 0 var(--space-1) var(--space-3)
+    color-mix(in srgb, var(--gray-12) 18%, transparent);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(calc(var(--space-1) * -1));
+    box-shadow: 0 var(--space-2) var(--space-4)
+      color-mix(in srgb, var(--gray-12) 26%, transparent);
+  }
+
+  &__button {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: inherit;
+    color: inherit;
+    font: inherit;
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--radius-3);
+  }
+
+  &__loading {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-3);
+    background-color: color-mix(in srgb, var(--gray-1) 60%, transparent);
+  }
+
+  &--loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}

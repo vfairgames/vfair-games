@@ -1,0 +1,425 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoleName {
+  ADMIN
+  PARTNER
+}
+
+enum Permission {
+  MANAGE_USERS
+  MANAGE_PARTNERS
+  MANAGE_PLAYERS
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        RoleName         @unique
+  users       User[]
+  permissions RolePermission[]
+}
+
+model RolePermission {
+  id         Int        @id @default(autoincrement())
+  roleId     Int
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission
+  granted    Boolean    @default(false)
+
+  @@unique([roleId, permission])
+}
+
+model User {
+  id                Int                @id @default(autoincrement())
+  email             String
+  password          String
+  roleId            Int
+  role              Role               @relation(fields: [roleId], references: [id])
+  partnerId         Int?
+  partner           Partner?           @relation(fields: [partnerId], references: [id])
+  signIns           UserSignIn[]
+  failedRoundEvents FailedRoundEvent[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  lastAccessAt      DateTime?
+}
+
+model UserSignIn {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  email     String
+  ipAddress String?
+  userAgent String?
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([email, createdAt(sort: Desc)])
+}
+
+model Partner {
+  id                  Int                       @id @default(autoincrement())
+  name                String
+  code                String
+  lobbyUrl            String?
+  webhookUrl          String?
+  secret              String                    @unique
+  ipWhitelist         String                    @default("*")
+  users               User[]
+  currencies          PartnerCurrency[]
+  games               PartnerGame[]
+  theme               PartnerTheme?
+  players             Player[]
+  rounds              GameRound[]
+  walletTransactions  WalletTransaction[]
+  verificationContent GameVerificationContent[]
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  deletedAt           DateTime?
+}
+
+model PartnerCurrency {
+  id                 Int                 @id @default(autoincrement())
+  partnerId          Int
+  partner            Partner             @relation(fields: [partnerId], references: [id])
+  code               String
+  minBet             Decimal             @db.Decimal(38, 18)
+  maxBet             Decimal             @db.Decimal(38, 18)
+  maxWin             Decimal             @db.Decimal(38, 18)
+  decimals           Int
+  rounds             GameRound[]
+  walletTransactions WalletTransaction[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@unique([partnerId, code])
+  @@index([partnerId])
+}
+
+model PartnerGame {
+  id        Int         @id @default(autoincrement())
+  partnerId Int
+  partner   Partner     @relation(fields: [partnerId], references: [id])
+  gameId    String
+  enabled   Boolean     @default(false)
+  rtp       Float       @default(0.98)
+  rounds    GameRound[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([partnerId, gameId])
+  @@index([partnerId])
+}
+
+enum PartnerThemeAppearance {
+  light
+  dark
+}
+
+model PartnerTheme {
+  partnerId            Int                    @id
+  partner              Partner                @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  lightAccent          String
+  lightGray            String
+  lightBg              String
+  darkAccent           String
+  darkGray             String
+  darkBg               String
+  defaultAppearance    PartnerThemeAppearance @default(light)
+  themeSwitcherEnabled Boolean                @default(true)
+  lightAccentColor     String
+  darkAccentColor      String
+  logoBytes            Bytes?
+  logoContentType      String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+}
+
+model Player {
+  id                 Int                 @id @default(autoincrement())
+  partnerId          Int
+  partner            Partner             @relation(fields: [partnerId], references: [id])
+  externalId         String
+  seeds              ProvablyFairSeed[]
+  rotations          FairnessRotation[]
+  rounds             GameRound[]
+  walletTransactions WalletTransaction[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
+
+  @@unique([partnerId, externalId])
+  @@index([partnerId])
+}
+
+enum SeedStatus {
+  COMMITTED
+  ACTIVE
+  REVEALED
+}
+
+enum RoundStatus {
+  ACTIVE
+  WON
+  LOST
+  FAILED
+}
+
+enum WalletTxType {
+  DEBIT
+  CREDIT
+  ROLLBACK
+}
+
+enum WalletTxStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  ROLLED_BACK
+}
+
+model ProvablyFairSeed {
+  id             Int               @id @default(autoincrement())
+  playerId       Int
+  player         Player            @relation(fields: [playerId], references: [id])
+  serverSeed     String
+  serverSeedHash String            @unique
+  status         SeedStatus        @default(COMMITTED)
+  rotation       FairnessRotation?
+  createdAt      DateTime          @default(now())
+  revealedAt     DateTime?
+
+  @@index([playerId, status])
+}
+
+model FairnessRotation {
+  id           Int              @id @default(autoincrement())
+  playerId     Int
+  player       Player           @relation(fields: [playerId], references: [id])
+  serverSeedId Int              @unique
+  serverSeed   ProvablyFairSeed @relation(fields: [serverSeedId], references: [id])
+  clientSeed   String
+  sequence     Int
+  nonceCount   Int              @default(0)
+  rounds       GameRound[]
+  startedAt    DateTime         @default(now())
+  endedAt      DateTime?
+
+  @@unique([playerId, sequence])
+  @@index([playerId, endedAt])
+}
+
+model GameRound {
+  id                BigInt              @id @default(autoincrement())
+  rotationId        Int
+  rotation          FairnessRotation    @relation(fields: [rotationId], references: [id], onDelete: Restrict)
+  playerId          Int
+  player            Player              @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  partnerId         Int
+  partner           Partner             @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+  gameId            String
+  partnerGame       PartnerGame         @relation(fields: [partnerId, gameId], references: [partnerId, gameId], map: "GameRound_partnerGame_fkey")
+  nonce             Int
+  currency          String
+  partnerCurrency   PartnerCurrency     @relation(fields: [partnerId, currency], references: [partnerId, code], map: "GameRound_partnerCurrency_fkey")
+  rtp               Decimal             @db.Decimal(8, 6)
+  requestId         String
+  status            RoundStatus         @default(ACTIVE)
+  betAmount         Decimal             @db.Decimal(38, 18)
+  payoutMultiplier  Decimal?            @db.Decimal(20, 8)
+  winAmount         Decimal?            @db.Decimal(38, 18)
+  balanceAfter      Decimal?            @db.Decimal(38, 18)
+  outcome           Json
+  transactions      WalletTransaction[]
+  failedRoundEvents FailedRoundEvent[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  settledAt         DateTime?
+
+  @@unique([rotationId, nonce])
+  @@unique([playerId, requestId])
+  @@index([createdAt, id])
+  @@index([playerId, createdAt(sort: Desc)])
+  @@index([playerId, gameId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([partnerId, gameId, createdAt(sort: Desc)])
+  @@index([partnerId, currency, createdAt(sort: Desc)])
+  @@index([partnerId, status, createdAt(sort: Desc)])
+  @@index([playerId, status])
+}
+
+enum FailedRoundEventAction {
+  SOLVED
+  UNSOLVED
+}
+
+model FailedRoundEvent {
+  id              Int                    @id @default(autoincrement())
+  roundId         BigInt
+  round           GameRound              @relation(fields: [roundId], references: [id], onDelete: Restrict)
+  action          FailedRoundEventAction
+  note            String                 @db.Text
+  createdByUserId Int
+  createdByUser   User                   @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  createdAt       DateTime               @default(now())
+
+  @@index([roundId, createdAt(sort: Desc)])
+}
+
+model WalletTransaction {
+  id                    BigInt              @id @default(autoincrement())
+  playerId              Int
+  player                Player              @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  partnerId             Int
+  partner               Partner             @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+  roundId               BigInt?
+  round                 GameRound?          @relation(fields: [roundId], references: [id], onDelete: Restrict)
+  type                  WalletTxType
+  status                WalletTxStatus      @default(PENDING)
+  currency              String
+  partnerCurrency       PartnerCurrency     @relation(fields: [partnerId, currency], references: [partnerId, code], map: "WalletTransaction_partnerCurrency_fkey")
+  amount                Decimal             @db.Decimal(38, 18)
+  balanceBefore         Decimal?            @db.Decimal(38, 18)
+  balanceAfter          Decimal?            @db.Decimal(38, 18)
+  partnerTransactionId  String?
+  requestId             String
+  reversesTransactionId BigInt?
+  reverses              WalletTransaction?  @relation("WalletTxReversal", fields: [reversesTransactionId], references: [id], onDelete: Restrict)
+  reversedBy            WalletTransaction[] @relation("WalletTxReversal")
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@unique([partnerId, requestId])
+  @@unique([partnerId, partnerTransactionId])
+  @@index([createdAt, id])
+  @@index([playerId, createdAt(sort: Desc)])
+  @@index([roundId])
+  @@index([reversesTransactionId])
+  @@index([partnerId, currency, createdAt(sort: Desc)])
+  @@index([partnerId, status])
+}
+
+model GameRoundArchive {
+  id               BigInt
+  rotationId       Int
+  playerId         Int
+  partnerId        Int
+  gameId           String
+  nonce            Int
+  currency         String
+  rtp              Decimal     @db.Decimal(8, 6)
+  requestId        String
+  status           RoundStatus
+  betAmount        Decimal     @db.Decimal(38, 18)
+  payoutMultiplier Decimal?    @db.Decimal(20, 8)
+  winAmount        Decimal?    @db.Decimal(38, 18)
+  balanceAfter     Decimal?    @db.Decimal(38, 18)
+  outcome          Json
+  createdAt        DateTime
+  updatedAt        DateTime
+  settledAt        DateTime?
+  archivedAt       DateTime    @default(now())
+
+  @@index([id])
+  @@index([playerId, createdAt(sort: Desc)])
+  @@index([playerId, gameId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([partnerId, gameId, createdAt(sort: Desc)])
+  @@index([partnerId, currency, createdAt(sort: Desc)])
+  @@ignore
+}
+
+model WalletTransactionArchive {
+  id                    BigInt
+  playerId              Int
+  partnerId             Int
+  roundId               BigInt?
+  type                  WalletTxType
+  status                WalletTxStatus
+  currency              String
+  amount                Decimal        @db.Decimal(38, 18)
+  balanceBefore         Decimal?       @db.Decimal(38, 18)
+  balanceAfter          Decimal?       @db.Decimal(38, 18)
+  partnerTransactionId  String?
+  requestId             String
+  reversesTransactionId BigInt?
+  createdAt             DateTime
+  updatedAt             DateTime
+  archivedAt            DateTime       @default(now())
+
+  @@index([id])
+  @@index([roundId])
+  @@index([playerId, createdAt(sort: Desc)])
+  @@index([partnerId, currency, createdAt(sort: Desc)])
+  @@index([partnerId, requestId])
+  @@index([partnerId, partnerTransactionId])
+  @@ignore
+}
+
+enum KpiScope {
+  PLAYER
+  PARTNER
+  GLOBAL
+}
+
+model DailyKpi {
+  id           Int            @id @default(autoincrement())
+  date         DateTime       @db.Date
+  scope        KpiScope
+  partnerId    Int            @default(0)
+  playerId     Int            @default(0)
+  currency     String
+  totalWagered Decimal        @default(0) @db.Decimal(38, 18)
+  totalWon     Decimal        @default(0) @db.Decimal(38, 18)
+  ggr          Decimal        @default(0) @db.Decimal(38, 18)
+  totalBets    Int            @default(0)
+  games        DailyKpiGame[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([date, scope, partnerId, playerId, currency])
+  @@index([scope, partnerId, date])
+  @@index([scope, playerId, date])
+  @@index([scope, date])
+}
+
+model DailyKpiGame {
+  id           Int      @id @default(autoincrement())
+  dailyKpiId   Int
+  dailyKpi     DailyKpi @relation(fields: [dailyKpiId], references: [id], onDelete: Cascade)
+  gameId       String
+  totalWagered Decimal  @default(0) @db.Decimal(38, 18)
+  totalWon     Decimal  @default(0) @db.Decimal(38, 18)
+  ggr          Decimal  @default(0) @db.Decimal(38, 18)
+  totalBets    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([dailyKpiId, gameId])
+  @@index([gameId])
+}
+
+model KpiProcessedRound {
+  roundId     BigInt   @id
+  processedAt DateTime @default(now())
+}
+
+model GameVerificationContent {
+  id        Int      @id @default(autoincrement())
+  partnerId Int
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  gameId    String
+  lang      String
+  html      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([partnerId, gameId, lang])
+  @@index([partnerId, gameId])
+}

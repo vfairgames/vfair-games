@@ -1,0 +1,15 @@
+.dice-verify-result {
+  &__roll {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: var(--space-2);
+    border-radius: var(--radius-2);
+    font-size: var(--font-size-1);
+    font-weight: 500;
+    line-height: 1;
+    color: white;
+    background: var(--gray-10);
+  }
+}

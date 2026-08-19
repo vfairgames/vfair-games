@@ -1,0 +1,12 @@
+.partner-currencies {
+  width: 100%;
+
+  &__form-card {
+    padding: var(--space-4);
+  }
+
+  &__actions-col {
+    width: 96px;
+    text-align: right;
+  }
+}

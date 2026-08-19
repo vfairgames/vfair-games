@@ -1,0 +1,13 @@
+.bet-amount-input {
+  &__right_slot {
+    padding-right: var(--space-1);
+  }
+
+  &__currency_flag {
+    margin-right: var(--space-2);
+  }
+
+  &:has(input:focus) &__currency_flag {
+    display: none;
+  }
+}

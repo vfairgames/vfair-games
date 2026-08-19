@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma-partner-api"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id       Int            @id @default(autoincrement())
+  username String         @unique
+  password String
+  wallets  PlayerWallet[]
+  walletTransactions WalletTransaction[]
+}
+
+model PlayerWallet {
+  id       Int     @id @default(autoincrement())
+  playerId Int
+  player   Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  currency String
+  balance  Decimal @db.Decimal(18, 2)
+  decimals Int
+  walletTransactions WalletTransaction[]
+
+  @@unique([playerId, currency])
+}
+
+enum PartnerWalletTxType {
+  DEBIT
+  CREDIT
+  ROLLBACK
+}
+
+model WalletTransaction {
+  id                    Int                 @id @default(autoincrement())
+  playerId              Int
+  player                Player              @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  walletId              Int
+  wallet                PlayerWallet        @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  type                  PartnerWalletTxType
+  amount                Decimal             @db.Decimal(18, 2)
+  balanceAfter          Decimal             @db.Decimal(18, 2)
+  requestId             String              @unique
+  gameId                String
+  roundId               String?
+  reversesTransactionId Int?
+  reverses              WalletTransaction?  @relation("PartnerWalletTxReversal", fields: [reversesTransactionId], references: [id], onDelete: Restrict)
+  reversedBy            WalletTransaction[] @relation("PartnerWalletTxReversal")
+  createdAt             DateTime            @default(now())
+
+  @@index([playerId, createdAt(sort: Desc)])
+}

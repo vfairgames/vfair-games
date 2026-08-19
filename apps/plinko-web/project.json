@@ -1,0 +1,9 @@
+{
+  "name": "plinko-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/plinko-web/src",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project plinko-web --web",
+  "targets": {}
+}

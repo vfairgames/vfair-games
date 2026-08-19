@@ -1,0 +1,23 @@
+.game-sidebar {
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+.game-layout-container--fluid {
+  .game-sidebar__tabs {
+    order: 2;
+  }
+
+  .game-sidebar__body {
+    order: 1;
+  }
+
+  .game-bet-controls {
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+  }
+}
