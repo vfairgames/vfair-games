@@ -1,26 +1,61 @@
-# vfair
+# 🎮 vFair Games
+
+**Open-source provably fair iGaming platform built with TypeScript, React, NestJS, and Nx.**
+
+Production-ready casino game infrastructure with **Dice, Mines, Limbo, Plinko, and Keno**, including provably fair verification, configurable RTP, partner wallet integration, admin tooling, and reporting.
+
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-Backend-red)](https://nestjs.com/)
+[![React](https://img.shields.io/badge/React-Frontend-61DAFB)](https://react.dev/)
+[![Nx](https://img.shields.io/badge/Nx-Monorepo-143055)](https://nx.dev/)
 
 https://github.com/user-attachments/assets/d80f6f34-29de-47dd-ac61-dd67c4f04ded
-
-Provably fair **iGaming** platform: B2B online casino games (Dice, Mines, Limbo, Plinko, Keno) with HMAC seed verification, partner wallet API, RTP configuration, and an admin dashboard.
-
-Nx monorepo for game frontends, admin tooling, and NestJS backends (pnpm, TypeScript, React + Vite, Prisma + PostgreSQL, Redis, RabbitMQ, Socket.IO).
 
 **Keywords:** provably fair casino, iGaming, online casino, crypto casino, dice game, mines game, limbo, plinko, keno, crash game, betting, RTP, white-label casino, partner integration, wallet API, Socket.IO, NestJS, React, TypeScript, Nx monorepo
 
 `#provablyfair` `#igaming` `#casino` `#onlinecasino` `#cryptocasino` `#dice` `#mines` `#limbo` `#plinko` `#keno` `#crashgame` `#betting` `#rtp` `#whitelabel` `#nestjs` `#react` `#typescript` `#nx` `#socketio` `#postgresql`
 
-## Live demos
+[🎮 Live Demo](https://vfair.games/games)
 
-Play the games at [vfair.games/games](https://vfair.games/games/), or open a title directly:
+Try the games without installing anything:
 
-| Game   | URL                                                        |
-| ------ | ---------------------------------------------------------- |
-| Dice   | [https://dice.vfair.games](https://dice.vfair.games/)       |
-| Mines  | [https://mines.vfair.games](https://mines.vfair.games/)     |
-| Limbo  | [https://limbo.vfair.games](https://limbo.vfair.games/)     |
-| Plinko | [https://plinko.vfair.games](https://plinko.vfair.games/)   |
-| Keno   | [https://keno.vfair.games](https://keno.vfair.games/)       |
+| Game | Live Demo |
+| --- | --- |
+| 🎲 **Dice** | [dice.vfair.games](https://dice.vfair.games) |
+| 💎 **Mines** | [mines.vfair.games](https://mines.vfair.games) |
+| 🚀 **Limbo** | [limbo.vfair.games](https://limbo.vfair.games) |
+| 🔵 **Plinko** | [plinko.vfair.games](https://plinko.vfair.games) |
+| 🎯 **Keno** | [keno.vfair.games](https://keno.vfair.games) |
+
+All games are also available at **[vfair.games/games](https://vfair.games/games)**.
+
+### 🔐 Provably Fair
+
+Game outcomes can be independently verified using cryptographic seeds and HMAC-based deterministic result generation.
+
+### ⚙️ Configurable RTP
+
+Game mathematics and payout configuration are separated from the UI, allowing operators to configure game behavior and RTP.
+
+### 💳 Partner Wallet Integration
+
+Designed for B2B integrations where the casino/operator remains responsible for player balances.
+
+The platform communicates with the partner wallet API for game transactions instead of maintaining an isolated player wallet.
+
+### 📊 Admin & Reporting
+
+Back-office applications and services are included for managing integrations and monitoring platform activity.
+
+### 🔌 Partner Integration
+
+The platform is designed to be embedded into an existing casino or gaming product while keeping game infrastructure isolated from the operator's platform.
+
+### ⚡ Real-Time Gameplay
+
+Game communication uses **Socket.IO** for real-time interaction between clients and backend services.
+
 
 ## Prerequisites
 
@@ -141,5 +176,5 @@ nest-utils, radix-palette
 ```
 
 ## Support
-
+⭐ **If you find vFair useful, consider giving it a star.**
 To support this project, contact [info@vfair.games](mailto:info@vfair.games).
