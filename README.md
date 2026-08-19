@@ -8,6 +8,18 @@ Nx monorepo for game frontends, admin tooling, and NestJS backends (pnpm, TypeSc
 
 `#provablyfair` `#igaming` `#casino` `#onlinecasino` `#cryptocasino` `#dice` `#mines` `#limbo` `#plinko` `#keno` `#crashgame` `#betting` `#rtp` `#whitelabel` `#nestjs` `#react` `#typescript` `#nx` `#socketio` `#postgresql`
 
+## Live demos
+
+Play the games at [vfair.games/games](https://vfair.games/games/), or open a title directly:
+
+| Game   | URL                                                        |
+| ------ | ---------------------------------------------------------- |
+| Dice   | [https://dice.vfair.games](https://dice.vfair.games/)       |
+| Mines  | [https://mines.vfair.games](https://mines.vfair.games/)     |
+| Limbo  | [https://limbo.vfair.games](https://limbo.vfair.games/)     |
+| Plinko | [https://plinko.vfair.games](https://plinko.vfair.games/)   |
+| Keno   | [https://keno.vfair.games](https://keno.vfair.games/)       |
+
 ## Prerequisites
 
 - [nvm](https://github.com/nvm-sh/nvm) (to install and switch Node versions)
