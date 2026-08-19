@@ -72,34 +72,32 @@ Local seed logins (not for production):
 
 ### 4. Start apps
 
+```bash
 # Everything with a serve target
-
 pnpm dev:all
 
 # One project
-
 pnpm nx serve mines-web
 pnpm nx serve kpi-worker
 pnpm nx serve partner-docs
-
 ```
 
-| App              | URL                                                        |
-| ---------------- | ---------------------------------------------------------- |
-| Dice             | http://localhost:4200                                      |
-| Mines            | http://localhost:4201                                      |
-| Limbo            | http://localhost:4202                                      |
-| Plinko           | http://localhost:4203                                      |
-| Keno             | http://localhost:4204                                      |
-| Admin            | http://localhost:4300                                      |
-| Fake partner     | http://localhost:4400                                      |
-| Verification     | http://localhost:4500                                      |
-| Partner docs     | http://localhost:4600                                      |
-| Games API        | http://localhost:3000                                      |
-| Games API health | http://localhost:3000/api/health                           |
-| Admin API        | http://localhost:3001 (proxied by admin-web `/api`)        |
-| Fake partner API | http://localhost:3002 (proxied by fake-partner-web `/api`) |
-| KPI worker       | http://localhost:3003                                      |
+| App              | URL                                                                                 |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| Dice             | [http://localhost:4200](http://localhost:4200)                                      |
+| Mines            | [http://localhost:4201](http://localhost:4201)                                      |
+| Limbo            | [http://localhost:4202](http://localhost:4202)                                      |
+| Plinko           | [http://localhost:4203](http://localhost:4203)                                      |
+| Keno             | [http://localhost:4204](http://localhost:4204)                                      |
+| Admin            | [http://localhost:4300](http://localhost:4300)                                      |
+| Fake partner     | [http://localhost:4400](http://localhost:4400)                                      |
+| Verification     | [http://localhost:4500](http://localhost:4500)                                      |
+| Partner docs     | [http://localhost:4600](http://localhost:4600)                                      |
+| Games API        | [http://localhost:3000](http://localhost:3000)                                      |
+| Games API health | [http://localhost:3000/api/health](http://localhost:3000/api/health)                |
+| Admin API        | [http://localhost:3001](http://localhost:3001) (proxied by admin-web `/api`)        |
+| Fake partner API | [http://localhost:3002](http://localhost:3002) (proxied by fake-partner-web `/api`) |
+| KPI worker       | [http://localhost:3003](http://localhost:3003)                                      |
 
 Open a game UI directly only after a session token exists. The usual path is fake partner → launch game, or admin for back-office.
 
@@ -131,4 +129,3 @@ nest-utils, radix-palette
 ## Support
 
 To support this project, contact [info@vfair.games](mailto:info@vfair.games).
-```
