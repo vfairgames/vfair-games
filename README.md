@@ -1,5 +1,7 @@
 # vfair
 
+https://github.com/user-attachments/assets/d80f6f34-29de-47dd-ac61-dd67c4f04ded
+
 Provably fair **iGaming** platform: B2B online casino games (Dice, Mines, Limbo, Plinko, Keno) with HMAC seed verification, partner wallet API, RTP configuration, and an admin dashboard.
 
 Nx monorepo for game frontends, admin tooling, and NestJS backends (pnpm, TypeScript, React + Vite, Prisma + PostgreSQL, Redis, RabbitMQ, Socket.IO).
