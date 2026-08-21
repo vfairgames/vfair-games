@@ -1,6 +1,6 @@
 # 🎮 vFair Games
 
-**Open-source provably fair iGaming platform built with TypeScript, React, NestJS, and Nx.**
+**Open source provably fair games** — an open-source provably fair iGaming platform built with TypeScript, React, NestJS, and Nx.
 
 Production-ready casino game infrastructure with **Dice, Mines, Limbo, Plinko, and Keno**, including provably fair verification, configurable RTP, partner wallet integration, admin tooling, and reporting.
 
@@ -12,7 +12,7 @@ Production-ready casino game infrastructure with **Dice, Mines, Limbo, Plinko, a
 
 https://github.com/user-attachments/assets/d80f6f34-29de-47dd-ac61-dd67c4f04ded
 
-**Keywords:** provably fair casino, iGaming, online casino, crypto casino, dice game, mines game, limbo, plinko, keno, crash game, betting, RTP, white-label casino, partner integration, wallet API, Socket.IO, NestJS, React, TypeScript, Nx monorepo
+**Keywords:** open source provably fair games, provably fair casino, iGaming, online casino, crypto casino, dice game, mines game, limbo, plinko, keno, crash game, betting, RTP, white-label casino, partner integration, wallet API, Socket.IO, NestJS, React, TypeScript, Nx monorepo
 
 `#provablyfair` `#igaming` `#casino` `#onlinecasino` `#cryptocasino` `#dice` `#mines` `#limbo` `#plinko` `#keno` `#crashgame` `#betting` `#rtp` `#whitelabel` `#nestjs` `#react` `#typescript` `#nx` `#socketio` `#postgresql`
 
