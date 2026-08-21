@@ -175,6 +175,10 @@ nest-utils, radix-palette
 
 ```
 
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
+
 ## Support
 ⭐ **If you find vFair useful, consider giving it a star.**
 To support this project, contact [info@vfair.games](mailto:info@vfair.games).
