@@ -20,13 +20,13 @@ https://github.com/user-attachments/assets/d80f6f34-29de-47dd-ac61-dd67c4f04ded
 
 Try the games without installing anything:
 
-| Game | Live Demo |
-| --- | --- |
-| 🎲 **Dice** | [dice.vfair.games](https://dice.vfair.games) |
-| 💎 **Mines** | [mines.vfair.games](https://mines.vfair.games) |
-| 🚀 **Limbo** | [limbo.vfair.games](https://limbo.vfair.games) |
+| Game          | Live Demo                                        |
+| ------------- | ------------------------------------------------ |
+| 🎲 **Dice**   | [dice.vfair.games](https://dice.vfair.games)     |
+| 💎 **Mines**  | [mines.vfair.games](https://mines.vfair.games)   |
+| 🚀 **Limbo**  | [limbo.vfair.games](https://limbo.vfair.games)   |
 | 🔵 **Plinko** | [plinko.vfair.games](https://plinko.vfair.games) |
-| 🎯 **Keno** | [keno.vfair.games](https://keno.vfair.games) |
+| 🎯 **Keno**   | [keno.vfair.games](https://keno.vfair.games)     |
 
 All games are also available at **[vfair.games/games](https://vfair.games/games)**.
 
@@ -55,7 +55,6 @@ The platform is designed to be embedded into an existing casino or gaming produc
 ### ⚡ Real-Time Gameplay
 
 Game communication uses **Socket.IO** for real-time interaction between clients and backend services.
-
 
 ## Prerequisites
 
@@ -180,5 +179,6 @@ nest-utils, radix-palette
 This project is licensed under the [Apache License 2.0](LICENSE).
 
 ## Support
+
 ⭐ **If you find vFair useful, consider giving it a star.**
 To support this project, contact [info@vfair.games](mailto:info@vfair.games).
