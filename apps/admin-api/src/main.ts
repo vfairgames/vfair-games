@@ -17,7 +17,7 @@ const bootstrap = async () => {
   const logger = wireNestApiLogger(app);
 
   app.disable('x-powered-by');
-  app.set('trust proxy', true); // TODO: review for production — use TRUST_PROXY env (e.g. 1) instead of trusting all hops
+  app.set('trust proxy', 1);
 
   app.useGlobalPipes(
     new ValidationPipe({
