@@ -8,6 +8,7 @@ export default [
     ignores: [
       '**/dist',
       '**/out-tsc',
+      '**/.astro/**',
       '**/storybook-static/**',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',

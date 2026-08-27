@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { Flex, Text } from '@radix-ui/themes';
 import {
   SquaresFourIcon,

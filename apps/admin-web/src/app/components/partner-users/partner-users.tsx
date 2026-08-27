@@ -1,6 +1,6 @@
 import { Button, Flex, Spinner } from '@radix-ui/themes';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { TablePagination } from '../table-pagination/table-pagination';
 import { UsersTable } from '../users-table/users-table';
 import { LIST_PAGE_SIZE } from '../../constants/constants';

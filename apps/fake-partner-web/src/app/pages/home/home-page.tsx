@@ -8,7 +8,7 @@ import {
 } from '@vfair/game-contracts';
 import { Flex, Grid, Spinner } from '@radix-ui/themes';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { GameCard } from '../../components/game-card/game-card';
 import { PartnerHeader } from '../../components/partner-header/partner-header';
 import { useAuthStore } from '../../auth/auth-store';

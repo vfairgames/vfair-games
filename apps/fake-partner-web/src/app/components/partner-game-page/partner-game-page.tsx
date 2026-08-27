@@ -10,7 +10,7 @@ import {
 } from '@radix-ui/themes';
 import { XIcon } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import type { GameLanguage } from '../language-selector/language-selector';
 import { PartnerHeader } from '../partner-header/partner-header';
 import { useAuthStore } from '../../auth/auth-store';

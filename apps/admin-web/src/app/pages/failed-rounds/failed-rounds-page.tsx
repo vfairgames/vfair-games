@@ -1,6 +1,6 @@
 import { Badge, Callout, Flex, Spinner, Table, Text } from '@radix-ui/themes';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { formatCurrency } from '@vfair/app-common';
 import { isBetFailureStage } from '@vfair/game-contracts';

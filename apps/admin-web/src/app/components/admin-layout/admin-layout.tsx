@@ -1,5 +1,5 @@
 import { Flex, Box } from '@radix-ui/themes';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import clsx from 'clsx';
 import { Header } from '../header/header';
 import { Sidebar } from '../sidebar/sidebar';

@@ -1,6 +1,6 @@
 import { Badge, Flex, IconButton, Table, Text } from '@radix-ui/themes';
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import type { User } from '../../services/admin-api.service';
 import { formatDateTime, formatShortDate } from '../../utils/format-date';
 import './users-table.scss';

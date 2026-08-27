@@ -1,6 +1,6 @@
 import { Callout, Flex, Spinner } from '@radix-ui/themes';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import type { GameLanguage } from '../../components/language-selector/language-selector';
 import { PartnerHeader } from '../../components/partner-header/partner-header';
 import { useAuthStore } from '../../auth/auth-store';

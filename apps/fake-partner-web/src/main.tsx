@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import 'flag-icons/css/flag-icons.min.css';
 import '@radix-ui/themes/styles.css';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PartnerTheme } from './app/components/partner-theme/partner-theme';
 import { PartnerApp } from './app/partner-app';

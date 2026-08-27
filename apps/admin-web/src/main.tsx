@@ -4,7 +4,7 @@ import 'flag-icons/css/flag-icons.min.css';
 import '@radix-ui/themes/styles.css';
 import './app/admin-global.scss';
 import { Theme } from '@radix-ui/themes';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import {
   MutationCache,
   QueryCache,

@@ -8,7 +8,7 @@ import {
 } from '@radix-ui/themes';
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import {
   keepPreviousData,
   useMutation,

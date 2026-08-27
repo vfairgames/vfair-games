@@ -14,7 +14,7 @@ import {
   XIcon,
 } from '@phosphor-icons/react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import type { PlayerWallet } from '../../auth/auth-types';
 import type { PartnerAppearance } from '../../store/partner-prefs-store';
 import { usePartnerPrefsStore } from '../../store/partner-prefs-store';

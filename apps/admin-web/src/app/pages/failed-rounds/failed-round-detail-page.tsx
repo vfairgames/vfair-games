@@ -15,7 +15,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatCurrency } from '@vfair/app-common';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { FormPageHeader } from '../../components/form-page-header/form-page-header';
 import { usePageTitle } from '../../hooks/use-page-title';
 import {

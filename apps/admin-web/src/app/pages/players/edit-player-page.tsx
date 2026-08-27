@@ -8,7 +8,7 @@ import {
   TextField,
 } from '@radix-ui/themes';
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { FormPageHeader } from '../../components/form-page-header/form-page-header';
 import { PlayerBetHistory } from '../../components/player-bet-history/player-bet-history';
 import { PlayerReports } from '../../components/player-reports/player-reports';

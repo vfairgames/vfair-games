@@ -1,6 +1,6 @@
 import { Button, Flex, Spinner } from '@radix-ui/themes';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import {
   keepPreviousData,
   useMutation,

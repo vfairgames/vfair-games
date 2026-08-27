@@ -6,7 +6,7 @@ import {
   KENO_GAME_ID,
 } from '@vfair/game-contracts';
 import { Flex, Spinner } from '@radix-ui/themes';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router';
 import { useAuthStore } from './auth/auth-store';
 import { useAuthBootstrap } from './auth/use-auth-bootstrap';
 import { PartnerGamePage } from './components/partner-game-page/partner-game-page';

@@ -1,6 +1,6 @@
 import { Button, Card, Flex } from '@radix-ui/themes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FormPageHeader } from '../../components/form-page-header/form-page-header';

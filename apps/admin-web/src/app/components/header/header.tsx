@@ -5,7 +5,7 @@ import {
   UserCircleIcon,
   ListIcon,
 } from '@phosphor-icons/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAuthStore } from '../../auth/auth-store';
 import { useLayoutStore } from '../../store/layout-store';
 import './header.scss';
