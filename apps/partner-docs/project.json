@@ -32,7 +32,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/partner-docs",
-        "command": "node ../../node_modules/typescript/bin/tsc --noEmit"
+        "command": "astro sync && node ../../node_modules/typescript/bin/tsc --noEmit"
       }
     }
   }
