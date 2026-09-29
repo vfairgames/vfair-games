@@ -29,6 +29,7 @@ import {
 const BET_SETTLEMENT_LOCK_TTL_SECONDS = 60;
 const BET_SETTLEMENT_LOCK_WAIT_MS = 3000;
 const BET_SETTLEMENT_LOCK_RETRY_MS = 50;
+const BET_SETTLEMENT_LOCK_REFRESH_MS = 20_000;
 
 const betSettlementLockKey = (playerId: number): string =>
   `games-api:player:${playerId}:bet-settlement`;
@@ -36,6 +37,13 @@ const betSettlementLockKey = (playerId: number): string =>
 const releaseBetSettlementLockScript = `
   if redis.call("get", KEYS[1]) == ARGV[1] then
     return redis.call("del", KEYS[1])
+  end
+  return 0
+`;
+
+const refreshBetSettlementLockScript = `
+  if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("expire", KEYS[1], ARGV[2])
   end
   return 0
 `;
@@ -96,9 +104,19 @@ export class FairnessService {
       });
     }
 
+    let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
     try {
+      refreshTimer = setInterval(() => {
+        void this.refreshBetSettlementLock(key, token, playerId);
+      }, BET_SETTLEMENT_LOCK_REFRESH_MS);
+
       return await callback();
     } finally {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+
       try {
         await this.redisService.client.eval(
           releaseBetSettlementLockScript,
@@ -112,6 +130,27 @@ export class FairnessService {
           'Failed to release bet settlement lock',
         );
       }
+    }
+  }
+
+  private async refreshBetSettlementLock(
+    key: string,
+    token: string,
+    playerId: number,
+  ): Promise<void> {
+    try {
+      await this.redisService.client.eval(
+        refreshBetSettlementLockScript,
+        1,
+        key,
+        token,
+        String(BET_SETTLEMENT_LOCK_TTL_SECONDS),
+      );
+    } catch (error: unknown) {
+      this.logger.error(
+        { error, playerId },
+        'Failed to refresh bet settlement lock',
+      );
     }
   }
 
@@ -243,8 +282,11 @@ export class FairnessService {
     };
   }
 
-  async getActiveRounds(playerId: number): Promise<ActiveRoundsState> {
-    const activeRounds = await this.prisma.gameRound.findMany({
+  async getActiveRounds(
+    playerId: number,
+    db: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<ActiveRoundsState> {
+    const activeRounds = await db.gameRound.findMany({
       where: { playerId, status: RoundStatus.ACTIVE },
       select: { gameId: true },
       orderBy: { gameId: 'asc' },
@@ -269,7 +311,20 @@ export class FairnessService {
       });
     }
 
-    const activeRounds = await this.getActiveRounds(playerId);
+    await this.assertNoActiveRounds(playerId, this.prisma);
+
+    // Re-check under the settlement lock and the rotation row lock: a bet can
+    // open a round between the checks above and the seed reveal below.
+    return this.withBetSettlementLock(playerId, () =>
+      this.rotateOpenRotation(playerId, request),
+    );
+  }
+
+  private async assertNoActiveRounds(
+    playerId: number,
+    db: Prisma.TransactionClient | PrismaService,
+  ): Promise<void> {
+    const activeRounds = await this.getActiveRounds(playerId, db);
 
     if (activeRounds.games.length > 0) {
       throw new WsException({
@@ -278,7 +333,12 @@ export class FairnessService {
         games: activeRounds.games,
       });
     }
+  }
 
+  private async rotateOpenRotation(
+    playerId: number,
+    request: RotateFairnessRequest,
+  ): Promise<FairnessState> {
     return this.prisma.$transaction(async (tx) => {
       let currentRotation = await this.lockOpenRotation(tx, playerId);
 
@@ -293,6 +353,8 @@ export class FairnessService {
           message: 'Active fairness rotation was not found',
         });
       }
+
+      await this.assertNoActiveRounds(playerId, tx);
 
       const committedSeed = await tx.provablyFairSeed.findFirst({
         where: { playerId, status: SeedStatus.COMMITTED },

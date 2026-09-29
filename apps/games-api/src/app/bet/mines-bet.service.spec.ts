@@ -240,6 +240,8 @@ describe('MinesBetService', () => {
     gameRound: {
       create: jest.Mock;
       update: jest.Mock;
+      updateMany: jest.Mock;
+      findUniqueOrThrow: jest.Mock;
     };
     walletTransaction: {
       create: jest.Mock;
@@ -322,6 +324,22 @@ describe('MinesBetService', () => {
             currentRound.status === RoundStatus.ACTIVE ? currentRound : null;
           return Promise.resolve(currentRound);
         }),
+        updateMany: jest.fn().mockImplementation(({ where, data }) => {
+          if (
+            where.status === RoundStatus.ACTIVE &&
+            currentRound.status !== RoundStatus.ACTIVE
+          ) {
+            return Promise.resolve({ count: 0 });
+          }
+
+          currentRound = applyRoundUpdate(currentRound, data);
+          activeRoundLookup =
+            currentRound.status === RoundStatus.ACTIVE ? currentRound : null;
+          return Promise.resolve({ count: 1 });
+        }),
+        findUniqueOrThrow: jest.fn().mockImplementation(() => {
+          return Promise.resolve(currentRound);
+        }),
       },
       walletTransaction: {
         create: jest.fn().mockResolvedValue({ id: BigInt(100) }),
@@ -347,11 +365,27 @@ describe('MinesBetService', () => {
             outcome: currentRound.outcome,
           });
         }),
+        findUniqueOrThrow: jest.fn().mockImplementation(() => {
+          return Promise.resolve(currentRound);
+        }),
         update: jest.fn().mockImplementation(({ data }) => {
           currentRound = applyRoundUpdate(currentRound, data);
           activeRoundLookup =
             currentRound.status === RoundStatus.ACTIVE ? currentRound : null;
           return Promise.resolve(currentRound);
+        }),
+        updateMany: jest.fn().mockImplementation(({ where, data }) => {
+          if (
+            where.status === RoundStatus.ACTIVE &&
+            currentRound.status !== RoundStatus.ACTIVE
+          ) {
+            return Promise.resolve({ count: 0 });
+          }
+
+          currentRound = applyRoundUpdate(currentRound, data);
+          activeRoundLookup =
+            currentRound.status === RoundStatus.ACTIVE ? currentRound : null;
+          return Promise.resolve({ count: 1 });
         }),
       },
       walletTransaction: {
@@ -770,5 +804,44 @@ describe('MinesBetService', () => {
       'bet_failed',
     );
     expectCreditFailureMarked();
+  });
+
+  it('rejects cash out when the round is no longer active', async () => {
+    activeRoundLookup = buildRound({
+      balanceAfter: 10,
+      outcome: {
+        mineCount: 3,
+        gridSize: 25,
+        reveals: [{ tile: safeTile, order: 1, multiplier: 1.08 }],
+        multiplier: 1.08,
+      },
+    });
+    currentRound = buildRound({
+      status: RoundStatus.WON,
+      balanceAfter: 10,
+      outcome: {
+        mineCount: 3,
+        gridSize: 25,
+        reveals: [{ tile: safeTile, order: 1, multiplier: 1.08 }],
+        multiplier: 1.08,
+      },
+    });
+
+    await expectWsError(service.cashOut(session), 'round_not_active');
+    expect(tx.walletTransaction.create).not.toHaveBeenCalled();
+    expect(partnerWallet.credit).not.toHaveBeenCalled();
+  });
+
+  it('rejects reveal when the round is no longer active', async () => {
+    activeRoundLookup = buildRound({ balanceAfter: 10 });
+    currentRound = buildRound({
+      status: RoundStatus.LOST,
+      balanceAfter: 10,
+    });
+
+    await expectWsError(
+      service.revealTile(session, { tile: safeTile }),
+      'round_not_active',
+    );
   });
 });

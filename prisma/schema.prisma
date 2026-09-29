@@ -304,6 +304,7 @@ model WalletTransaction {
   @@index([reversesTransactionId])
   @@index([partnerId, currency, createdAt(sort: Desc)])
   @@index([partnerId, status])
+  @@index([status, type, createdAt])
 }
 
 model GameRoundArchive {

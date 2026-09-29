@@ -512,22 +512,18 @@ export class MinesBetService {
 
     if (isMineHit(input.tile, mineLayout)) {
       const settled = await this.prisma.$transaction(async (tx) => {
-        const round = await tx.gameRound.update({
-          where: { id: input.round.id },
-          data: {
-            status: RoundStatus.LOST,
-            payoutMultiplier: 0,
-            winAmount: 0,
-            outcome: {
-              mineCount: outcome.mineCount,
-              gridSize: outcome.gridSize,
-              reveals,
-              multiplier: 0,
-              mineLayout,
-            },
-            settledAt: new Date(),
+        const round = await this.updateActiveRound(tx, input.round.id, {
+          status: RoundStatus.LOST,
+          payoutMultiplier: 0,
+          winAmount: 0,
+          outcome: {
+            mineCount: outcome.mineCount,
+            gridSize: outcome.gridSize,
+            reveals,
+            multiplier: 0,
+            mineLayout,
           },
-          include: roundRelationsInclude,
+          settledAt: new Date(),
         });
 
         await enqueueRoundSettledOutbox(tx, round);
@@ -563,9 +559,10 @@ export class MinesBetService {
       });
     }
 
-    const updated = await this.prisma.gameRound.update({
-      where: { id: input.round.id },
-      data: {
+    const updated = await this.updateActiveRound(
+      this.prisma,
+      input.round.id,
+      {
         outcome: {
           mineCount: outcome.mineCount,
           gridSize: outcome.gridSize,
@@ -573,8 +570,7 @@ export class MinesBetService {
           multiplier: reveal.multiplier,
         },
       },
-      include: roundRelationsInclude,
-    });
+    );
 
     return mapGameRoundToBetResult(updated) as MinesBetResult;
   }
@@ -612,22 +608,18 @@ export class MinesBetService {
     );
 
     let settled = await this.prisma.$transaction(async (tx) => {
-      const round = await tx.gameRound.update({
-        where: { id: input.round.id },
-        data: {
-          status: RoundStatus.WON,
-          payoutMultiplier: input.multiplier,
-          winAmount,
-          outcome: {
-            mineCount: input.outcome.mineCount,
-            gridSize: input.outcome.gridSize,
-            reveals: input.outcome.reveals,
-            multiplier: input.multiplier,
-            mineLayout,
-          },
-          settledAt: new Date(),
+      const round = await this.updateActiveRound(tx, input.round.id, {
+        status: RoundStatus.WON,
+        payoutMultiplier: input.multiplier,
+        winAmount,
+        outcome: {
+          mineCount: input.outcome.mineCount,
+          gridSize: input.outcome.gridSize,
+          reveals: input.outcome.reveals,
+          multiplier: input.multiplier,
+          mineLayout,
         },
-        include: roundRelationsInclude,
+        settledAt: new Date(),
       });
 
       await tx.walletTransaction.create({
@@ -847,6 +839,29 @@ export class MinesBetService {
         message: 'An active mines round already exists',
       });
     }
+  }
+
+  private async updateActiveRound(
+    db: Prisma.TransactionClient | PrismaService,
+    roundId: bigint,
+    data: Prisma.GameRoundUpdateManyMutationInput,
+  ): Promise<RoundWithRelations> {
+    const result = await db.gameRound.updateMany({
+      where: { id: roundId, status: RoundStatus.ACTIVE },
+      data,
+    });
+
+    if (result.count === 0) {
+      throw new WsException({
+        err_code: 'round_not_active',
+        message: 'Mines round is no longer active',
+      });
+    }
+
+    return db.gameRound.findUniqueOrThrow({
+      where: { id: roundId },
+      include: roundRelationsInclude,
+    });
   }
 
   private async requireActiveRound(

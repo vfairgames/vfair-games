@@ -46,6 +46,10 @@ jest.mock('../redis/redis.service', () => ({
   RedisService: class RedisService {},
 }));
 
+jest.mock('../bet/round.mapper', () => ({
+  toFairnessState: jest.fn(() => ({ state: 'rotated' })),
+}));
+
 import { WsException } from '@nestjs/websockets';
 
 import { FairnessService } from './fairness.service';
@@ -128,11 +132,14 @@ describe('FairnessService withBetSettlementLock', () => {
     fatal: jest.fn(),
   } as unknown as PinoLogger;
 
-  const createService = (set: jest.Mock) => {
+  const createService = (client: {
+    set: jest.Mock;
+    eval?: jest.Mock;
+  }) => {
     const redisService = {
       client: {
-        set,
-        eval: jest.fn().mockResolvedValue(1),
+        set: client.set,
+        eval: client.eval ?? jest.fn().mockResolvedValue(1),
       },
     } as unknown as RedisService;
 
@@ -149,7 +156,7 @@ describe('FairnessService withBetSettlementLock', () => {
 
   it('runs the callback when the lock is free', async () => {
     const set = jest.fn().mockResolvedValue('OK');
-    const service = createService(set);
+    const service = createService({ set });
 
     await expect(
       service.withBetSettlementLock(1, async () => 'done'),
@@ -163,7 +170,7 @@ describe('FairnessService withBetSettlementLock', () => {
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce('OK');
-    const service = createService(set);
+    const service = createService({ set });
 
     const resultPromise = service.withBetSettlementLock(1, async () => 'done');
     await jest.advanceTimersByTimeAsync(100);
@@ -174,7 +181,7 @@ describe('FairnessService withBetSettlementLock', () => {
 
   it('throws bet_in_progress when the lock stays busy past the wait window', async () => {
     const set = jest.fn().mockResolvedValue(null);
-    const service = createService(set);
+    const service = createService({ set });
 
     const resultPromise = service.withBetSettlementLock(1, async () => 'done');
     void resultPromise.catch(() => undefined);
@@ -196,7 +203,7 @@ describe('FairnessService withBetSettlementLock', () => {
 
   it('maps redis acquire failures to bet_failed', async () => {
     const set = jest.fn().mockRejectedValue(new Error('redis down'));
-    const service = createService(set);
+    const service = createService({ set });
 
     try {
       await service.withBetSettlementLock(1, async () => 'done');
@@ -208,5 +215,143 @@ describe('FairnessService withBetSettlementLock', () => {
         message: 'Bet failed',
       });
     }
+  });
+
+  it('refreshes the lock TTL while the callback is running', async () => {
+    const set = jest.fn().mockResolvedValue('OK');
+    const evalMock = jest.fn().mockResolvedValue(1);
+    const service = createService({ set, eval: evalMock });
+
+    let releaseHold: (() => void) | undefined;
+    const hold = new Promise<void>((resolve) => {
+      releaseHold = resolve;
+    });
+
+    const resultPromise = service.withBetSettlementLock(1, async () => {
+      await hold;
+      return 'done';
+    });
+
+    await jest.advanceTimersByTimeAsync(20_000);
+
+    expect(evalMock).toHaveBeenCalledWith(
+      expect.stringContaining('expire'),
+      1,
+      'games-api:player:1:bet-settlement',
+      expect.any(String),
+      '60',
+    );
+
+    releaseHold?.();
+    await expect(resultPromise).resolves.toBe('done');
+  });
+});
+
+describe('FairnessService rotateFairness', () => {
+  const logger = {
+    warn: jest.fn(),
+    error: jest.fn(),
+    fatal: jest.fn(),
+  } as unknown as PinoLogger;
+
+  const lockedRotationRow = {
+    id: 7,
+    clientSeed: 'old-client',
+    nonceCount: 3,
+    sequence: 1,
+    serverSeedId: 11,
+    seedId: 11,
+    serverSeed: 'secret',
+    serverSeedHash: 'hash',
+    seedStatus: 'ACTIVE',
+  };
+
+  const createService = ({
+    activeRoundsBeforeLock = [] as { gameId: string }[],
+    activeRoundsInTransaction = [] as { gameId: string }[],
+  } = {}) => {
+    const tx = {
+      $queryRaw: jest.fn().mockResolvedValue([lockedRotationRow]),
+      gameRound: {
+        findMany: jest.fn().mockResolvedValue(activeRoundsInTransaction),
+      },
+      provablyFairSeed: {
+        findFirst: jest.fn().mockResolvedValue({ id: 12 }),
+        update: jest.fn().mockResolvedValue({}),
+        create: jest.fn().mockResolvedValue({}),
+      },
+      fairnessRotation: {
+        update: jest.fn().mockResolvedValue({}),
+        create: jest.fn().mockResolvedValue({ id: 8 }),
+      },
+    };
+    const prisma = {
+      gameRound: {
+        findMany: jest.fn().mockResolvedValue(activeRoundsBeforeLock),
+      },
+      $transaction: jest.fn(
+        async (callback: (client: typeof tx) => Promise<unknown>) =>
+          callback(tx),
+      ),
+    } as unknown as PrismaService;
+    const redis = {
+      exists: jest.fn().mockResolvedValue(0),
+      set: jest.fn().mockResolvedValue('OK'),
+      eval: jest.fn().mockResolvedValue(1),
+    };
+    const redisService = { client: redis } as unknown as RedisService;
+
+    const service = new FairnessService(logger, prisma, redisService);
+
+    return { service, tx, redis };
+  };
+
+  it('rotates seeds under the bet settlement lock', async () => {
+    const { service, tx, redis } = createService();
+
+    await expect(
+      service.rotateFairness(1, { clientSeed: 'new-client' }),
+    ).resolves.toEqual({ state: 'rotated' });
+
+    expect(redis.set).toHaveBeenCalledWith(
+      'games-api:player:1:bet-settlement',
+      expect.any(String),
+      'EX',
+      60,
+      'NX',
+    );
+    expect(tx.provablyFairSeed.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 11 },
+        data: expect.objectContaining({ status: 'REVEALED' }),
+      }),
+    );
+  });
+
+  it('does not reveal the seed when a round opens after the pre-check', async () => {
+    const { service, tx, redis } = createService({
+      activeRoundsInTransaction: [{ gameId: 'v_mines' }],
+    });
+
+    try {
+      await service.rotateFairness(1, { clientSeed: 'new-client' });
+      throw new Error('expected rotateFairness to reject');
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(WsException);
+      expect((error as WsException).getError()).toEqual({
+        err_code: 'active_round_exists',
+        message: 'Finish the active round before rotating seeds',
+        games: [{ gameId: 'v_mines', gameName: 'Mines' }],
+      });
+    }
+
+    expect(tx.provablyFairSeed.update).not.toHaveBeenCalled();
+    expect(tx.fairnessRotation.update).not.toHaveBeenCalled();
+    expect(redis.eval).toHaveBeenCalledWith(
+      expect.stringContaining('del'),
+      1,
+      'games-api:player:1:bet-settlement',
+      expect.any(String),
+    );
   });
 });
