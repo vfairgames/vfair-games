@@ -603,6 +603,7 @@ describe('MinesBetService', () => {
 
     expect(result.status).toBe('won');
     expect(result.cashOut).toBe(1.01);
+    expect(result.gameData.multiplier).toBe(1.01);
     expect(partnerWallet.credit).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({

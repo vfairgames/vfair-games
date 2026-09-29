@@ -6,6 +6,7 @@ import {
   isMineHit,
   MINES_GRID_SIZE,
   MINES_MULTIPLIER_DECIMALS,
+  roundToDecimals,
   type MinesOdds,
 } from '@vfair/game-math';
 import {
@@ -368,6 +369,10 @@ class MinesGameDemoService implements MinesGameServiceInterface {
       status === 'won'
         ? this.#getCashOutAmount(round.betAmount, multiplier)
         : 0;
+    const payoutMultiplier =
+      status === 'won'
+        ? roundToDecimals(cashOut / round.betAmount, MINES_MULTIPLIER_DECIMALS)
+        : 0;
     const nextBalance =
       status === 'won'
         ? roundToCurrency(balance + cashOut)
@@ -388,7 +393,7 @@ class MinesGameDemoService implements MinesGameServiceInterface {
         gridSize: MINES_GRID_SIZE,
         mineLayout: round.mineLayout,
         reveals: round.reveals,
-        multiplier: status === 'won' ? multiplier : 0,
+        multiplier: payoutMultiplier,
       },
     };
 

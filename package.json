@@ -33,6 +33,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/starlight": "^0.41.6",
     "@babel/core": "^7.29.7",

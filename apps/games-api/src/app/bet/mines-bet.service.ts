@@ -588,14 +588,19 @@ export class MinesBetService {
         input.round.nonce,
         input.outcome.mineCount,
       );
+    const betAmount = input.round.betAmount.toNumber();
     const profit = this.resolveCappedProfit(
-      input.round.betAmount.toNumber(),
+      betAmount,
       input.multiplier,
       input.currencyConfig,
     );
     const winAmount = roundToDecimals(
-      input.round.betAmount.toNumber() + profit,
+      betAmount + profit,
       input.currencyConfig.currencyDecimals,
+    );
+    const payoutMultiplier = roundToDecimals(
+      winAmount / betAmount,
+      MINES_MULTIPLIER_DECIMALS,
     );
     const winWalletRequestId = this.placeBetSupport.toPlayerWalletRequestId(
       input.session.externalPlayerId,
@@ -606,13 +611,13 @@ export class MinesBetService {
     let settled = await this.prisma.$transaction(async (tx) => {
       const round = await this.updateActiveRound(tx, input.round.id, {
         status: RoundStatus.WON,
-        payoutMultiplier: input.multiplier,
+        payoutMultiplier,
         winAmount,
         outcome: {
           mineCount: input.outcome.mineCount,
           gridSize: input.outcome.gridSize,
           reveals: input.outcome.reveals,
-          multiplier: input.multiplier,
+          multiplier: payoutMultiplier,
           mineLayout,
         },
         settledAt: new Date(),
