@@ -132,10 +132,7 @@ describe('FairnessService withBetSettlementLock', () => {
     fatal: jest.fn(),
   } as unknown as PinoLogger;
 
-  const createService = (client: {
-    set: jest.Mock;
-    eval?: jest.Mock;
-  }) => {
+  const createService = (client: { set: jest.Mock; eval?: jest.Mock }) => {
     const redisService = {
       client: {
         set: client.set,

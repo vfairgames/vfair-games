@@ -559,18 +559,14 @@ export class MinesBetService {
       });
     }
 
-    const updated = await this.updateActiveRound(
-      this.prisma,
-      input.round.id,
-      {
-        outcome: {
-          mineCount: outcome.mineCount,
-          gridSize: outcome.gridSize,
-          reveals,
-          multiplier: reveal.multiplier,
-        },
+    const updated = await this.updateActiveRound(this.prisma, input.round.id, {
+      outcome: {
+        mineCount: outcome.mineCount,
+        gridSize: outcome.gridSize,
+        reveals,
+        multiplier: reveal.multiplier,
       },
-    );
+    });
 
     return mapGameRoundToBetResult(updated) as MinesBetResult;
   }
