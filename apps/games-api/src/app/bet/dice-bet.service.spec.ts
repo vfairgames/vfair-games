@@ -47,9 +47,6 @@ jest.mock('../fairness/fairness.service', () => ({
 jest.mock('../partner-config/partner-config.service', () => ({
   PartnerConfigService: class PartnerConfigService {},
 }));
-jest.mock('../messaging/round-settled.publisher', () => ({
-  RoundSettledPublisher: class RoundSettledPublisher {},
-}));
 
 import { HttpException } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
@@ -68,7 +65,6 @@ import type { PartnerConfigService } from '../partner-config/partner-config.serv
 import type { PrismaService } from '../prisma/prisma.service';
 import type { FairnessService } from '../fairness/fairness.service';
 import type { PartnerWalletService } from '../partner-wallet/partner-wallet.service';
-import type { RoundSettledPublisher } from '../messaging/round-settled.publisher';
 import type { SessionTokenPayload } from '../session/session-token.service';
 import { DiceBetService } from './dice-bet.service';
 import { PlaceBetSupportService } from './place-bet-support.service';
@@ -252,12 +248,14 @@ describe('DiceBetService', () => {
     fairnessRotation: {
       update: jest.Mock;
     };
+    kpiOutbox: {
+      create: jest.Mock;
+    };
   };
   let partnerConfig: PartnerConfigService;
   let placeBetSupport: PlaceBetSupportService;
   let partnerWallet: PartnerWalletService;
   let fairnessService: FairnessService;
-  let roundSettledPublisher: RoundSettledPublisher;
   let service: DiceBetService;
   let serviceLogger: { error: jest.Mock; warn: jest.Mock };
   let currentRound: RoundSnapshot;
@@ -330,6 +328,9 @@ describe('DiceBetService', () => {
       fairnessRotation: {
         update: jest.fn().mockResolvedValue({ id: rotation.id }),
       },
+      kpiOutbox: {
+        create: jest.fn().mockResolvedValue({ id: BigInt(1) }),
+      },
     };
 
     prisma = {
@@ -399,17 +400,12 @@ describe('DiceBetService', () => {
       partnerConfig,
     );
 
-    roundSettledPublisher = {
-      publish: jest.fn().mockResolvedValue(undefined),
-    } as unknown as RoundSettledPublisher;
-
     service = new DiceBetService(
       serviceLogger as never,
       prisma,
       placeBetSupport,
       partnerWallet,
       fairnessService,
-      roundSettledPublisher,
     );
   });
 
@@ -464,16 +460,20 @@ describe('DiceBetService', () => {
         Number(session.sub),
         expect.any(Function),
       );
-      expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+      expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          roundId: '10',
-          playerId: Number(session.sub),
-          partnerId: session.partnerId,
-          gameId: DICE_GAME_ID,
-          currency: 'USD',
-          betAmount: '1',
-          winAmount: '0',
-          status: RoundStatus.LOST,
+          data: expect.objectContaining({
+            payload: expect.objectContaining({
+              roundId: '10',
+              playerId: Number(session.sub),
+              partnerId: session.partnerId,
+              gameId: DICE_GAME_ID,
+              currency: 'USD',
+              betAmount: '1',
+              winAmount: '0',
+              status: RoundStatus.LOST,
+            }),
+          }),
         }),
       );
     });
@@ -526,12 +526,16 @@ describe('DiceBetService', () => {
           partnerTransactionId: 'partner-tx-win',
         }),
       });
-      expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+      expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          roundId: '10',
-          status: RoundStatus.WON,
-          betAmount: '1',
-          gameId: DICE_GAME_ID,
+          data: expect.objectContaining({
+            payload: expect.objectContaining({
+              roundId: '10',
+              status: RoundStatus.WON,
+              betAmount: '1',
+              gameId: DICE_GAME_ID,
+            }),
+          }),
         }),
       );
     });

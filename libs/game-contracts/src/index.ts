@@ -67,6 +67,8 @@ export {
   GAME_ROUND_SETTLED_EVENT,
   GAME_ROUND_SETTLED_ROUTING_KEY,
   KPI_ROUND_SETTLED_QUEUE,
+  KPI_ROUND_SETTLED_DLX,
+  KPI_ROUND_SETTLED_DLQ,
 } from './game-events';
 export type {
   GameRoundSettledEvent,

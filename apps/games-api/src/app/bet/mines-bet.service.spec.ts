@@ -47,9 +47,6 @@ jest.mock('../fairness/fairness.service', () => ({
 jest.mock('../partner-config/partner-config.service', () => ({
   PartnerConfigService: class PartnerConfigService {},
 }));
-jest.mock('../messaging/round-settled.publisher', () => ({
-  RoundSettledPublisher: class RoundSettledPublisher {},
-}));
 
 import { WsException } from '@nestjs/websockets';
 import {
@@ -66,7 +63,6 @@ import type { PartnerConfigService } from '../partner-config/partner-config.serv
 import type { PrismaService } from '../prisma/prisma.service';
 import type { FairnessService } from '../fairness/fairness.service';
 import type { PartnerWalletService } from '../partner-wallet/partner-wallet.service';
-import type { RoundSettledPublisher } from '../messaging/round-settled.publisher';
 import type { SessionTokenPayload } from '../session/session-token.service';
 import { MinesBetService } from './mines-bet.service';
 import { PlaceBetSupportService } from './place-bet-support.service';
@@ -252,12 +248,14 @@ describe('MinesBetService', () => {
     fairnessRotation: {
       update: jest.Mock;
     };
+    kpiOutbox: {
+      create: jest.Mock;
+    };
   };
   let partnerConfig: PartnerConfigService;
   let placeBetSupport: PlaceBetSupportService;
   let partnerWallet: PartnerWalletService;
   let fairnessService: FairnessService;
-  let roundSettledPublisher: RoundSettledPublisher;
   let service: MinesBetService;
   let serviceLogger: { error: jest.Mock; warn: jest.Mock };
   let currentRound: RoundSnapshot;
@@ -279,7 +277,7 @@ describe('MinesBetService', () => {
   };
 
   const expectCreditFailureMarked = (): void => {
-    expect(roundSettledPublisher.publish).not.toHaveBeenCalled();
+    expect(tx.kpiOutbox.create).not.toHaveBeenCalled();
     expect(prisma.walletTransaction.updateMany).toHaveBeenCalledWith({
       where: {
         partnerId: session.partnerId,
@@ -331,6 +329,9 @@ describe('MinesBetService', () => {
       },
       fairnessRotation: {
         update: jest.fn().mockResolvedValue({ id: rotation.id }),
+      },
+      kpiOutbox: {
+        create: jest.fn().mockResolvedValue({ id: BigInt(1) }),
       },
     };
 
@@ -405,17 +406,12 @@ describe('MinesBetService', () => {
       partnerConfig,
     );
 
-    roundSettledPublisher = {
-      publish: jest.fn().mockResolvedValue(undefined),
-    } as unknown as RoundSettledPublisher;
-
     service = new MinesBetService(
       serviceLogger as never,
       prisma,
       placeBetSupport,
       partnerWallet,
       fairnessService,
-      roundSettledPublisher,
     );
   });
 
@@ -451,7 +447,7 @@ describe('MinesBetService', () => {
       }),
     });
     expect(partnerWallet.credit).not.toHaveBeenCalled();
-    expect(roundSettledPublisher.publish).not.toHaveBeenCalled();
+    expect(tx.kpiOutbox.create).not.toHaveBeenCalled();
     expect(tx.fairnessRotation.update).toHaveBeenCalledWith({
       where: { id: rotation.id },
       data: { nonceCount: 1 },
@@ -477,7 +473,7 @@ describe('MinesBetService', () => {
     expect(result.gameData.reveals).toHaveLength(1);
     expect(result.gameData.reveals[0]?.tile).toBe(safeTile);
     expect(result.gameData).not.toHaveProperty('mineLayout');
-    expect(roundSettledPublisher.publish).not.toHaveBeenCalled();
+    expect(tx.kpiOutbox.create).not.toHaveBeenCalled();
   });
 
   it('settles a lost round on mine hit and publishes KPI', async () => {
@@ -489,11 +485,15 @@ describe('MinesBetService', () => {
     expect(result.cashOut).toBe(0);
     expect(result.gameData.mineLayout).toEqual(mineLayout);
     expect(partnerWallet.credit).not.toHaveBeenCalled();
-    expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+    expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        gameId: MINES_GAME_ID,
-        status: RoundStatus.LOST,
-        winAmount: '0',
+        data: expect.objectContaining({
+          payload: expect.objectContaining({
+            gameId: MINES_GAME_ID,
+            status: RoundStatus.LOST,
+            winAmount: '0',
+          }),
+        }),
       }),
     );
   });
@@ -539,10 +539,14 @@ describe('MinesBetService', () => {
         partnerTransactionId: 'partner-tx-win',
       }),
     });
-    expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+    expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        gameId: MINES_GAME_ID,
-        status: RoundStatus.WON,
+        data: expect.objectContaining({
+          payload: expect.objectContaining({
+            gameId: MINES_GAME_ID,
+            status: RoundStatus.WON,
+          }),
+        }),
       }),
     );
   });
@@ -572,11 +576,15 @@ describe('MinesBetService', () => {
         requestId: 'player-1:req-1:win',
       }),
     );
-    expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+    expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        gameId: MINES_GAME_ID,
-        status: RoundStatus.WON,
-        winAmount: '1.01',
+        data: expect.objectContaining({
+          payload: expect.objectContaining({
+            gameId: MINES_GAME_ID,
+            status: RoundStatus.WON,
+            winAmount: '1.01',
+          }),
+        }),
       }),
     );
   });
@@ -602,14 +610,14 @@ describe('MinesBetService', () => {
 
     expect(partnerWallet.debit).not.toHaveBeenCalled();
     expect(partnerWallet.credit).not.toHaveBeenCalled();
-    expect(roundSettledPublisher.publish).not.toHaveBeenCalled();
+    expect(tx.kpiOutbox.create).not.toHaveBeenCalled();
   });
 
   it('rejects cash out with no reveals', async () => {
     activeRoundLookup = buildRound({ balanceAfter: 10 });
 
     await expectWsError(service.cashOut(session), 'cash_out_requires_reveal');
-    expect(roundSettledPublisher.publish).not.toHaveBeenCalled();
+    expect(tx.kpiOutbox.create).not.toHaveBeenCalled();
   });
 
   it('returns the active round for restore', async () => {
@@ -641,10 +649,14 @@ describe('MinesBetService', () => {
     });
 
     expect(result.status).toBe('lost');
-    expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+    expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        gameId: MINES_GAME_ID,
-        status: RoundStatus.LOST,
+        data: expect.objectContaining({
+          payload: expect.objectContaining({
+            gameId: MINES_GAME_ID,
+            status: RoundStatus.LOST,
+          }),
+        }),
       }),
     );
   });
@@ -658,10 +670,14 @@ describe('MinesBetService', () => {
     expect(result.status).toBe('won');
     expect(result.gameData.reveals).toHaveLength(1);
     expect(partnerWallet.credit).toHaveBeenCalled();
-    expect(roundSettledPublisher.publish).toHaveBeenCalledWith(
+    expect(tx.kpiOutbox.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        gameId: MINES_GAME_ID,
-        status: RoundStatus.WON,
+        data: expect.objectContaining({
+          payload: expect.objectContaining({
+            gameId: MINES_GAME_ID,
+            status: RoundStatus.WON,
+          }),
+        }),
       }),
     );
   });

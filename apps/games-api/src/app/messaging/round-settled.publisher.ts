@@ -9,11 +9,13 @@ import type {
   ChannelWrapper,
 } from 'amqp-connection-manager';
 import { connect } from 'amqp-connection-manager';
+import type { GameRoundSettledEvent } from '@vfair/game-contracts';
 import {
   GAME_EVENTS_EXCHANGE,
-  GAME_ROUND_SETTLED_EVENT,
   GAME_ROUND_SETTLED_ROUTING_KEY,
-  type GameRoundSettledEvent,
+  KPI_ROUND_SETTLED_DLQ,
+  KPI_ROUND_SETTLED_DLX,
+  KPI_ROUND_SETTLED_QUEUE,
 } from '@vfair/game-contracts';
 import { InjectPinoLogger, PinoLogger } from '@vfair/nest-utils';
 
@@ -35,7 +37,7 @@ export class RoundSettledPublisher
     const url = process.env['RABBITMQ_URL'];
     if (!url) {
       this.logger.warn(
-        'RABBITMQ_URL is not set; round settled events will not be published',
+        'RABBITMQ_URL is not set; KPI events will wait in the outbox',
       );
       return;
     }
@@ -71,6 +73,28 @@ export class RoundSettledPublisher
         await channel.assertExchange(GAME_EVENTS_EXCHANGE, 'topic', {
           durable: true,
         });
+        await channel.assertExchange(KPI_ROUND_SETTLED_DLX, 'topic', {
+          durable: true,
+        });
+        await channel.assertQueue(KPI_ROUND_SETTLED_DLQ, {
+          durable: true,
+        });
+        await channel.bindQueue(
+          KPI_ROUND_SETTLED_DLQ,
+          KPI_ROUND_SETTLED_DLX,
+          '#',
+        );
+        await channel.assertQueue(KPI_ROUND_SETTLED_QUEUE, {
+          durable: true,
+          arguments: {
+            'x-dead-letter-exchange': KPI_ROUND_SETTLED_DLX,
+          },
+        });
+        await channel.bindQueue(
+          KPI_ROUND_SETTLED_QUEUE,
+          GAME_EVENTS_EXCHANGE,
+          GAME_ROUND_SETTLED_ROUTING_KEY,
+        );
       },
     });
 
@@ -101,37 +125,25 @@ export class RoundSettledPublisher
     this.connection = null;
   }
 
-  async publish(event: Omit<GameRoundSettledEvent, 'event'>): Promise<void> {
+  isReady(): boolean {
+    return this.channel !== null;
+  }
+
+  async publish(event: GameRoundSettledEvent): Promise<void> {
     if (!this.channel) {
-      this.logger.warn(
-        { roundId: event.roundId },
-        'Skipping game.round.settled publish; RabbitMQ channel unavailable',
-      );
-      return;
+      throw new Error('RabbitMQ channel unavailable');
     }
 
-    const payload: GameRoundSettledEvent = {
-      event: GAME_ROUND_SETTLED_EVENT,
-      ...event,
-    };
-
-    try {
-      await this.channel.publish(
-        GAME_EVENTS_EXCHANGE,
-        GAME_ROUND_SETTLED_ROUTING_KEY,
-        Buffer.from(JSON.stringify(payload)),
-        {
-          contentType: 'application/json',
-          persistent: true,
-          messageId: event.roundId,
-          timeout: PUBLISH_TIMEOUT_MS,
-        },
-      );
-    } catch (error: unknown) {
-      this.logger.error(
-        { error, roundId: event.roundId },
-        'Failed to publish game.round.settled',
-      );
-    }
+    await this.channel.publish(
+      GAME_EVENTS_EXCHANGE,
+      GAME_ROUND_SETTLED_ROUTING_KEY,
+      Buffer.from(JSON.stringify(event)),
+      {
+        contentType: 'application/json',
+        persistent: true,
+        messageId: event.roundId,
+        timeout: PUBLISH_TIMEOUT_MS,
+      },
+    );
   }
 }

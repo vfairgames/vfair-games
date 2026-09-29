@@ -13,11 +13,21 @@ import type { ConsumeMessage } from 'amqplib';
 import {
   GAME_EVENTS_EXCHANGE,
   GAME_ROUND_SETTLED_ROUTING_KEY,
+  KPI_ROUND_SETTLED_DLQ,
+  KPI_ROUND_SETTLED_DLX,
   KPI_ROUND_SETTLED_QUEUE,
 } from '@vfair/game-contracts';
 import { InjectPinoLogger, PinoLogger } from '@vfair/nest-utils';
 import { KpiIncrementService } from './kpi-increment.service';
 import { parseGameRoundSettledEvent } from './parse-game-round-settled-event';
+
+const MAX_RETRIES = 10;
+const KPI_RETRY_HEADER = 'x-kpi-retry';
+const RETRY_BASE_DELAY_MS = 1_000;
+const RETRY_MAX_DELAY_MS = 30_000;
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 @Injectable()
 export class RoundSettledConsumer
@@ -69,8 +79,22 @@ export class RoundSettledConsumer
         await channel.assertExchange(GAME_EVENTS_EXCHANGE, 'topic', {
           durable: true,
         });
+        await channel.assertExchange(KPI_ROUND_SETTLED_DLX, 'topic', {
+          durable: true,
+        });
+        await channel.assertQueue(KPI_ROUND_SETTLED_DLQ, {
+          durable: true,
+        });
+        await channel.bindQueue(
+          KPI_ROUND_SETTLED_DLQ,
+          KPI_ROUND_SETTLED_DLX,
+          '#',
+        );
         await channel.assertQueue(KPI_ROUND_SETTLED_QUEUE, {
           durable: true,
+          arguments: {
+            'x-dead-letter-exchange': KPI_ROUND_SETTLED_DLX,
+          },
         });
         await channel.bindQueue(
           KPI_ROUND_SETTLED_QUEUE,
@@ -96,7 +120,7 @@ export class RoundSettledConsumer
     );
 
     this.logger.info(
-      { queue: KPI_ROUND_SETTLED_QUEUE },
+      { queue: KPI_ROUND_SETTLED_QUEUE, dlq: KPI_ROUND_SETTLED_DLQ },
       'Consuming game.round.settled events (auto-reconnect enabled)',
     );
   }
@@ -129,18 +153,87 @@ export class RoundSettledConsumer
       return;
     }
 
+    let event;
     try {
       const raw: unknown = JSON.parse(message.content.toString('utf8'));
-      const event = parseGameRoundSettledEvent(raw);
-      await this.kpiIncrement.processSettledRound(event);
-      this.channel.ack(message);
+      event = parseGameRoundSettledEvent(raw);
     } catch (error: unknown) {
       this.logger.error(
         {
           error,
           messageId: message.properties.messageId,
         },
-        'Failed to process game.round.settled message',
+        'Invalid game.round.settled message; moving to dead-letter queue',
+      );
+      this.channel.nack(message, false, false);
+      return;
+    }
+
+    try {
+      await this.kpiIncrement.processSettledRound(event);
+      this.channel.ack(message);
+    } catch (error: unknown) {
+      await this.handleProcessingFailure(message, error);
+    }
+  }
+
+  private async handleProcessingFailure(
+    message: ConsumeMessage,
+    error: unknown,
+  ): Promise<void> {
+    if (!this.channel) {
+      return;
+    }
+
+    const retry = Number(message.properties.headers?.[KPI_RETRY_HEADER] ?? 0);
+
+    if (retry >= MAX_RETRIES) {
+      this.logger.error(
+        {
+          error,
+          messageId: message.properties.messageId,
+          retry,
+        },
+        'Too many retries for game.round.settled; moving to dead-letter queue',
+      );
+      this.channel.nack(message, false, false);
+      return;
+    }
+
+    this.logger.warn(
+      {
+        error,
+        messageId: message.properties.messageId,
+        retry: retry + 1,
+      },
+      'Could not process game.round.settled; will retry',
+    );
+
+    await sleep(Math.min(RETRY_MAX_DELAY_MS, RETRY_BASE_DELAY_MS * 2 ** retry));
+
+    if (!this.channel) {
+      return;
+    }
+
+    try {
+      await this.channel.sendToQueue(KPI_ROUND_SETTLED_QUEUE, message.content, {
+        contentType: message.properties.contentType,
+        persistent: true,
+        messageId: message.properties.messageId,
+        headers: {
+          ...(message.properties.headers ?? {}),
+          [KPI_RETRY_HEADER]: retry + 1,
+        },
+      });
+      this.channel.ack(message);
+    } catch (requeueError: unknown) {
+      this.logger.error(
+        {
+          error: requeueError,
+          originalError: error,
+          messageId: message.properties.messageId,
+        },
+        'Could not retry game.round.settled; moving to dead-letter queue',
       );
       this.channel.nack(message, false, false);
     }

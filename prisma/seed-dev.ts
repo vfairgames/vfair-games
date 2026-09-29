@@ -57,6 +57,7 @@ const seedDev = async () => {
   console.log('Wiping existing game data, partner users and partners…');
   await prisma.dailyKpi.deleteMany();
   await prisma.kpiProcessedRound.deleteMany();
+  await prisma.kpiOutbox.deleteMany();
   await prisma.walletTransaction.deleteMany();
   await prisma.gameRound.deleteMany();
   await prisma.fairnessRotation.deleteMany();

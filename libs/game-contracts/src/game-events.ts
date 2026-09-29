@@ -18,3 +18,5 @@ export type GameRoundSettledEvent = {
 export const GAME_EVENTS_EXCHANGE = 'game.events' as const;
 export const GAME_ROUND_SETTLED_ROUTING_KEY = 'game.round.settled' as const;
 export const KPI_ROUND_SETTLED_QUEUE = 'kpi.round.settled' as const;
+export const KPI_ROUND_SETTLED_DLX = 'kpi.round.settled.dlx' as const;
+export const KPI_ROUND_SETTLED_DLQ = 'kpi.round.settled.dlq' as const;

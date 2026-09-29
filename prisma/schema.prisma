@@ -410,6 +410,18 @@ model KpiProcessedRound {
   processedAt DateTime @default(now())
 }
 
+model KpiOutbox {
+  id          BigInt    @id @default(autoincrement())
+  roundId     BigInt    @unique
+  payload     Json
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+  attempts    Int       @default(0)
+  lastError   String?
+
+  @@index([publishedAt, createdAt])
+}
+
 model GameVerificationContent {
   id        Int      @id @default(autoincrement())
   partnerId Int

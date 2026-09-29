@@ -35,8 +35,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FairnessService } from '../fairness/fairness.service';
 import { PartnerWalletService } from '../partner-wallet/partner-wallet.service';
 import type { SessionTokenPayload } from '../session/session-token.service';
-import { publishRoundSettled } from '../messaging/publish-round-settled';
-import { RoundSettledPublisher } from '../messaging/round-settled.publisher';
+import { enqueueRoundSettledOutbox } from '../messaging/enqueue-round-settled-outbox';
 import { PlaceBetSupportService } from './place-bet-support.service';
 import { mapGameRoundToBetResult } from './round.mapper';
 import { roundRelationsInclude } from './round.types';
@@ -73,7 +72,6 @@ export class MinesBetService {
     private readonly placeBetSupport: PlaceBetSupportService,
     private readonly partnerWallet: PartnerWalletService,
     private readonly fairnessService: FairnessService,
-    private readonly roundSettledPublisher: RoundSettledPublisher,
   ) {}
 
   async placeBet(
@@ -513,25 +511,30 @@ export class MinesBetService {
     const reveals = [...outcome.reveals, reveal];
 
     if (isMineHit(input.tile, mineLayout)) {
-      const settled = await this.prisma.gameRound.update({
-        where: { id: input.round.id },
-        data: {
-          status: RoundStatus.LOST,
-          payoutMultiplier: 0,
-          winAmount: 0,
-          outcome: {
-            mineCount: outcome.mineCount,
-            gridSize: outcome.gridSize,
-            reveals,
-            multiplier: 0,
-            mineLayout,
+      const settled = await this.prisma.$transaction(async (tx) => {
+        const round = await tx.gameRound.update({
+          where: { id: input.round.id },
+          data: {
+            status: RoundStatus.LOST,
+            payoutMultiplier: 0,
+            winAmount: 0,
+            outcome: {
+              mineCount: outcome.mineCount,
+              gridSize: outcome.gridSize,
+              reveals,
+              multiplier: 0,
+              mineLayout,
+            },
+            settledAt: new Date(),
           },
-          settledAt: new Date(),
-        },
-        include: roundRelationsInclude,
+          include: roundRelationsInclude,
+        });
+
+        await enqueueRoundSettledOutbox(tx, round);
+
+        return round;
       });
 
-      await publishRoundSettled(this.roundSettledPublisher, settled);
       return mapGameRoundToBetResult(settled) as MinesBetResult;
     }
 
@@ -660,7 +663,6 @@ export class MinesBetService {
         winWalletRequestId,
       });
 
-      await publishRoundSettled(this.roundSettledPublisher, settled);
       return mapGameRoundToBetResult(settled) as MinesBetResult;
     } catch (error: unknown) {
       const wsError = this.placeBetSupport.normalizePlaceBetError(error);
@@ -815,13 +817,17 @@ export class MinesBetService {
         },
       });
 
-      return tx.gameRound.update({
+      const round = await tx.gameRound.update({
         where: { id: input.round.id },
         data: {
           balanceAfter: input.winWallet.balance,
         },
         include: roundRelationsInclude,
       });
+
+      await enqueueRoundSettledOutbox(tx, round);
+
+      return round;
     });
   }
 

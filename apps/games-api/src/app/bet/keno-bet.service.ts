@@ -28,8 +28,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FairnessService } from '../fairness/fairness.service';
 import { PartnerWalletService } from '../partner-wallet/partner-wallet.service';
 import type { SessionTokenPayload } from '../session/session-token.service';
-import { publishRoundSettled } from '../messaging/publish-round-settled';
-import { RoundSettledPublisher } from '../messaging/round-settled.publisher';
+import { enqueueRoundSettledOutbox } from '../messaging/enqueue-round-settled-outbox';
 import { PlaceBetSupportService } from './place-bet-support.service';
 import { mapGameRoundToBetResult } from './round.mapper';
 import { roundRelationsInclude } from './round.types';
@@ -68,7 +67,6 @@ export class KenoBetService {
     private readonly placeBetSupport: PlaceBetSupportService,
     private readonly partnerWallet: PartnerWalletService,
     private readonly fairnessService: FairnessService,
-    private readonly roundSettledPublisher: RoundSettledPublisher,
   ) {}
 
   async placeBet(
@@ -173,8 +171,6 @@ export class KenoBetService {
               });
               latestRoundId = latestRound.id.toString();
             }
-
-            await publishRoundSettled(this.roundSettledPublisher, latestRound);
 
             return mapGameRoundToBetResult(latestRound) as KenoBetResult;
           } catch (error: unknown) {
@@ -406,6 +402,8 @@ export class KenoBetService {
             requestId: input.winWalletRequestId,
           },
         });
+      } else {
+        await enqueueRoundSettledOutbox(tx, round);
       }
 
       return round;
@@ -434,13 +432,17 @@ export class KenoBetService {
         },
       });
 
-      return tx.gameRound.update({
+      const round = await tx.gameRound.update({
         where: { id: input.round.id },
         data: {
           balanceAfter: input.winWallet.balance,
         },
         include: roundRelationsInclude,
       });
+
+      await enqueueRoundSettledOutbox(tx, round);
+
+      return round;
     });
   }
 
