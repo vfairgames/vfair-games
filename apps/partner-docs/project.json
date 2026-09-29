@@ -34,6 +34,7 @@
         "cwd": "apps/partner-docs",
         "command": "astro sync && node ../../node_modules/typescript/bin/tsc --noEmit"
       }
-    }
+    },
+    "deploy-web": {}
   }
 }

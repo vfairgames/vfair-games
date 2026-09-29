@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
+  site: 'https://docs.vfair.games',
   outDir: '../../dist/apps/partner-docs',
   server: {
     port: 4600,
@@ -21,6 +22,13 @@ export default defineConfig({
         alt: 'VFair',
         replacesTitle: true,
       },
+      social: [
+        {
+          icon: 'external',
+          label: 'VFair',
+          href: 'https://vfair.games',
+        },
+      ],
       customCss: ['./src/styles/custom.css'],
       pagination: true,
       tableOfContents: {

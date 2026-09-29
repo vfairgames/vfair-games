@@ -13,7 +13,7 @@ Request a game URL from the VFair API, then open it for the player (iframe or re
 ## Endpoint
 
 ```http
-POST https://games-api.example.com/api/launch
+POST https://games-api.vfair.games/api/launch
 Authorization: Bearer <partner-jwt>
 Content-Type: application/json
 ```
@@ -48,7 +48,7 @@ Content-Type: application/json
 
 ```json
 {
-  "url": "https://dice.example.com/?settings=eyJsYW5nIjoiZW4iLCJydHAiOjAuOTg..."
+  "url": "https://dice.vfair.games/?settings=eyJsYW5nIjoiZW4iLCJydHAiOjAuOTg..."
 }
 ```
 
@@ -74,7 +74,15 @@ In real mode, launch fails if the player already has an **active round** for the
 
 ## Game URLs
 
-Returned hostnames are configured by VFair for your environment (for example `https://dice.example.com`).
+Returned hostnames:
+
+| Game ID    | URL                          |
+| ---------- | ---------------------------- |
+| `v_dice`   | `https://dice.vfair.games`   |
+| `v_mines`  | `https://mines.vfair.games`  |
+| `v_limbo`  | `https://limbo.vfair.games`  |
+| `v_plinko` | `https://plinko.vfair.games` |
+| `v_keno`   | `https://keno.vfair.games`   |
 
 The `settings` query parameter is a URL-encoded Base64 JSON payload. It includes theme, currency limits, RTP, language, and (in real mode) the session token. You do not need to decode or modify it.
 
@@ -83,7 +91,7 @@ The `settings` query parameter is a URL-encoded Base64 JSON payload. It includes
 Launch the provably fair verification tool for your enabled games:
 
 ```http
-POST https://games-api.example.com/api/verification/launch
+POST https://games-api.vfair.games/api/verification/launch
 Authorization: Bearer <partner-jwt>
 Content-Type: application/json
 ```
@@ -94,14 +102,14 @@ Content-Type: application/json
 | `lang`        | string | No       | UI language       |
 | `appearance`  | string | No       | `light` or `dark` |
 
-Response shape is the same: `{ "url": "..." }` (hosted on the verification tool origin configured by VFair).
+Response shape is the same: `{ "url": "..." }` (hosted at `https://verify.vfair.games`).
 
 ## Round fairness
 
 Fetch fairness data for a settled round:
 
 ```http
-GET https://games-api.example.com/api/rounds/{roundId}/fairness
+GET https://games-api.vfair.games/api/rounds/{roundId}/fairness
 Authorization: Bearer <partner-jwt>
 ```
 

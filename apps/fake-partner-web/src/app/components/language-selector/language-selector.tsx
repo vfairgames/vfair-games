@@ -4,6 +4,7 @@ import './language-selector.scss';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN' },
+  { code: 'hy', label: 'HY' },
   { code: 'ru', label: 'RU' },
 ] as const;
 

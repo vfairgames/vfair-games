@@ -26,7 +26,7 @@ const resetMainStore = () => {
 describe('SessionGate', () => {
   beforeEach(() => {
     resetMainStore();
-    window.history.pushState({}, '', '/?lang=ru');
+    window.history.pushState({}, '', '/?lang=hy');
   });
 
   afterEach(() => {
@@ -54,7 +54,7 @@ describe('SessionGate', () => {
 
     useMainStore.getState().applyGameSettings({
       ...DEFAULT_GAME_SETTINGS,
-      lang: 'ru',
+      lang: 'hy',
     });
 
     vi.spyOn(sessionService, 'initialize').mockImplementation(async () => {
@@ -70,13 +70,13 @@ describe('SessionGate', () => {
     );
 
     expect(await screen.findByText('Game ready')).toBeTruthy();
-    expect(initializedLanguages).toEqual(['ru']);
+    expect(initializedLanguages).toEqual(['hy']);
   });
 
   it('shows maintenance message instead of the game when under maintenance', async () => {
     useMainStore.getState().applyGameSettings({
       ...DEFAULT_GAME_SETTINGS,
-      lang: 'ru',
+      lang: 'hy',
     });
 
     vi.spyOn(sessionService, 'initialize').mockImplementation(async () => {
@@ -93,7 +93,7 @@ describe('SessionGate', () => {
 
     expect(
       await screen.findByText(
-        'Игра временно недоступна из-за технического обслуживания. Пожалуйста, попробуйте позже.',
+        'Խաղը ժամանակավորապես անհասանելի է տեխնիկական աշխատանքների պատճառով։ Խնդրում ենք փորձել ավելի ուշ։',
       ),
     ).toBeTruthy();
     expect(screen.queryByText('Game ready')).toBeNull();

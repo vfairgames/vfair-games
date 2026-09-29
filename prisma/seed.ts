@@ -123,7 +123,7 @@ const seed = async () => {
   const adminPassword = process.env['ADMIN_PASSWORD'] ?? 'secret';
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
-  const adminEmail = 'admin@example.com';
+  const adminEmail = process.env['ADMIN_EMAIL'] ?? 'admin@example.com';
   const existingAdmin = await prisma.user.findFirst({
     where: { email: adminEmail, deletedAt: null },
   });

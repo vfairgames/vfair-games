@@ -1,11 +1,13 @@
 import type { VerificationLanguage } from '../bootstrap/bootstrap-verification-settings';
 import en from './locales/en.json';
+import hy from './locales/hy.json';
 import ru from './locales/ru.json';
 
 type MessageKey = keyof typeof en;
 
 const catalogs: Record<VerificationLanguage, Record<MessageKey, string>> = {
   en,
+  hy,
   ru,
 };
 

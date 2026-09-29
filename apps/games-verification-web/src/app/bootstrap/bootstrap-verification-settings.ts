@@ -9,7 +9,7 @@ import {
 } from '@vfair/game-contracts';
 import { DEFAULT_GAME_RTP, UNSUPPORTED_GAME_RTP } from '@vfair/game-math';
 
-export type VerificationLanguage = 'en' | 'ru';
+export type VerificationLanguage = 'en' | 'hy' | 'ru';
 
 export type ResolvedVerificationSettings = {
   partnerCode: string | null;
@@ -28,7 +28,7 @@ export const DEFAULT_VERIFICATION_SETTINGS: ResolvedVerificationSettings = {
   lang: 'en',
   lightAccentColor: 'indigo',
   darkAccentColor: 'indigo',
-  defaultAppearance: 'light',
+  defaultAppearance: 'dark',
   themeSwitcherEnabled: true,
   theme: [],
   logo: null,
@@ -64,7 +64,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const resolveLanguage = (value: unknown): VerificationLanguage =>
-  value === 'ru' || value === 'en' ? value : DEFAULT_VERIFICATION_SETTINGS.lang;
+  value === 'hy' || value === 'ru' || value === 'en'
+    ? value
+    : DEFAULT_VERIFICATION_SETTINGS.lang;
 
 const resolveGames = (
   value: unknown,

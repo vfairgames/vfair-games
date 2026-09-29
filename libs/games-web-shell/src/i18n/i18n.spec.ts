@@ -10,13 +10,13 @@ import {
 describe('resolveLanguage', () => {
   it('returns supported language codes', () => {
     expect(resolveLanguage('en')).toBe('en');
+    expect(resolveLanguage('hy')).toBe('hy');
     expect(resolveLanguage('ru')).toBe('ru');
   });
 
   it('defaults unsupported or missing values to English', () => {
     expect(resolveLanguage(null)).toBe('en');
     expect(resolveLanguage('de')).toBe('en');
-    expect(resolveLanguage('hy')).toBe('en');
   });
 });
 
@@ -26,10 +26,10 @@ describe('initializeTranslations', () => {
   });
 
   it('loads the selected language catalog and updates the document language', async () => {
-    await initializeTranslations('ru');
+    await initializeTranslations('hy');
 
-    expect(document.documentElement.lang).toBe('ru');
-    expect(translate('shellManual')).toBe('Вручную');
+    expect(document.documentElement.lang).toBe('hy');
+    expect(translate('shellManual')).toBe('Ձեռքով');
   });
 
   it('defaults to English when no language is provided', async () => {

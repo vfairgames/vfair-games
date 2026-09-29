@@ -72,6 +72,8 @@
         "command": "tsc -p tsconfig.app.json --noEmit",
         "cwd": "apps/games-api"
       }
-    }
+    },
+    "docker-build": {},
+    "docker-push": {}
   }
 }

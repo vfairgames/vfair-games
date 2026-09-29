@@ -68,17 +68,15 @@ describe('bootstrapVerificationSettings', () => {
   });
 
   it('falls back to English for unsupported ISO languages', () => {
-    for (const lang of ['fr', 'hy']) {
-      const payload = { lang };
-      const encoded = encodeURIComponent(btoa(JSON.stringify(payload)));
+    const payload = { lang: 'fr' };
+    const encoded = encodeURIComponent(btoa(JSON.stringify(payload)));
 
-      const result = bootstrapVerificationSettings({
-        search: `?settings=${encoded}`,
-        hash: '',
-      });
+    const result = bootstrapVerificationSettings({
+      search: `?settings=${encoded}`,
+      hash: '',
+    });
 
-      expect(result.hasSettingsError).toBe(false);
-      expect(result.settings.lang).toBe('en');
-    }
+    expect(result.hasSettingsError).toBe(false);
+    expect(result.settings.lang).toBe('en');
   });
 });

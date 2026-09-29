@@ -7,13 +7,14 @@ import {
 type TranslationCatalog = Record<string, string>;
 type LocaleModule = { default: TranslationCatalog };
 
-export const SUPPORTED_LANGUAGES = ['en', 'ru'] as const;
+export const SUPPORTED_LANGUAGES = ['en', 'hy', 'ru'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
 
 const localeLoaders: Record<SupportedLanguage, () => Promise<LocaleModule>> = {
   en: () => import('./locales/en.json'),
+  hy: () => import('./locales/hy.json'),
   ru: () => import('./locales/ru.json'),
 };
 

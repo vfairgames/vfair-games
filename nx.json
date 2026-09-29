@@ -18,7 +18,32 @@
     ],
     "sharedGlobals": []
   },
-  "targetDefaults": {},
+  "targetDefaults": {
+    "deploy-web": {
+      "dependsOn": ["build"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vercel --cwd dist/apps/$NX_TASK_TARGET_PROJECT --scope $VERCEL_SCOPE --project $NX_TASK_TARGET_PROJECT"
+      },
+      "configurations": {
+        "production": {
+          "command": "vercel --cwd dist/apps/$NX_TASK_TARGET_PROJECT --scope $VERCEL_SCOPE --project $NX_TASK_TARGET_PROJECT --prod"
+        }
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "VERSION=\"${VERSION:-$(git rev-parse --short HEAD)}\" && docker buildx build --platform linux/amd64 --load -f docker/$NX_TASK_TARGET_PROJECT.Dockerfile -t vfair-$NX_TASK_TARGET_PROJECT:latest -t vfair-$NX_TASK_TARGET_PROJECT:$VERSION ."
+      }
+    },
+    "docker-push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "VERSION=\"${VERSION:-$(git rev-parse --short HEAD)}\" && docker tag vfair-$NX_TASK_TARGET_PROJECT:latest $DOCKER_REGISTRY/vfair-$NX_TASK_TARGET_PROJECT:latest && docker tag vfair-$NX_TASK_TARGET_PROJECT:$VERSION $DOCKER_REGISTRY/vfair-$NX_TASK_TARGET_PROJECT:$VERSION && docker push $DOCKER_REGISTRY/vfair-$NX_TASK_TARGET_PROJECT:latest && docker push $DOCKER_REGISTRY/vfair-$NX_TASK_TARGET_PROJECT:$VERSION"
+      }
+    }
+  },
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",

@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PartnerTheme } from './app/components/partner-theme/partner-theme';
 import { PartnerApp } from './app/partner-app';
 import './app/partner-global.scss';
+import { Analytics } from '@vercel/analytics/react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,6 +24,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
+    <Analytics />
     <QueryClientProvider client={queryClient}>
       <PartnerTheme>
         <BrowserRouter>

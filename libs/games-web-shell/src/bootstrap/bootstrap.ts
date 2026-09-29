@@ -40,7 +40,7 @@ export const DEFAULT_GAME_SETTINGS: GameSettings = {
   lobbyUrl: null,
   lightAccentColor: null,
   darkAccentColor: null,
-  defaultAppearance: 'light',
+  defaultAppearance: 'dark',
   themeSwitcherEnabled: true,
   theme: [],
   logo: null,

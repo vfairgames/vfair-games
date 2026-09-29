@@ -70,7 +70,7 @@ describe('buildPartnerVerificationSettings', () => {
         { id: 'v_dice', rtp: 0.99 },
         { id: 'v_limbo', rtp: 0.97 },
       ],
-      lang: 'ru',
+      lang: 'hy',
     });
 
     expect(settings).toEqual({
@@ -85,7 +85,7 @@ describe('buildPartnerVerificationSettings', () => {
         { id: 'v_dice', rtp: 0.99 },
         { id: 'v_limbo', rtp: 0.97 },
       ],
-      lang: 'ru',
+      lang: 'hy',
     });
   });
 });

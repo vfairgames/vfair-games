@@ -61,8 +61,8 @@ describe('applyGameSettings', () => {
     expect(state.lightAccentColor).toBe('blue');
     expect(state.darkAccentColor).toBe('violet');
     expect(state.lang).toBe('en');
-    expect(state.defaultAppearance).toBe('light');
-    expect(state.appearance).toBe('light');
+    expect(state.defaultAppearance).toBe('dark');
+    expect(state.appearance).toBe('dark');
     expect(state.themeSwitcherEnabled).toBe(true);
     expect(state.theme).toEqual([]);
   });

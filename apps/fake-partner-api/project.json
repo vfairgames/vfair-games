@@ -61,7 +61,9 @@
           "buildTarget": "fake-partner-api:build:production"
         }
       }
-    }
+    },
+    "docker-build": {},
+    "docker-push": {}
   },
   "tags": ["fake-partner"]
 }

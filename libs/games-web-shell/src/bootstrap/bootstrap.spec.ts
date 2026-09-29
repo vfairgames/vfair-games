@@ -36,7 +36,7 @@ describe('parseGameSettingsFromUrl', () => {
   });
 
   it('returns defaults when settings param is absent', () => {
-    window.history.pushState({}, '', '/?lang=fr');
+    window.history.pushState({}, '', '/?lang=hy');
 
     expect(parseGameSettingsFromUrl()).toEqual(DEFAULT_GAME_SETTINGS);
   });
