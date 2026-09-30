@@ -13,7 +13,7 @@ allowBuilds:
   unrs-resolver: true
 autoInstallPeers: true
 minimumReleaseAgeExclude:
-  - brace-expansion@1.1.16 || 1.1.17 || 2.1.2 || 2.1.3 || 5.0.5 || 5.0.6 || 5.0.7 || 5.0.8 || 5.0.9
+  - brace-expansion@1.1.16 || 1.1.17 || 1.1.19 || 1.1.20 || 1.1.21 || 2.1.2 || 2.1.3 || 2.1.5 || 2.1.6 || 2.1.7 || 5.0.5 || 5.0.6 || 5.0.7 || 5.0.8 || 5.0.9 || 5.0.10 || 5.0.11 || 5.0.12
   - yaml@2.8.3
   - '@hono/node-server@1.19.13 || 2.0.5'
   - follow-redirects@1.15.12
@@ -21,73 +21,93 @@ minimumReleaseAgeExclude:
   - uuid@11.1.1
   - tmp@0.2.6
   - form-data@4.0.6
-  - js-yaml@4.1.2 || 4.3.0 || 4.3.1
-  - multer@2.2.0
-  - adm-zip@0.6.0
+  - js-yaml@4.1.2 || 4.3.0 || 4.3.1 || 4.3.2
+  - multer@2.2.0 || 2.3.0 || 2.4.0
+  - adm-zip@0.6.0 || 0.6.1
   - shell-quote@1.8.5
   - webpack-dev-server@5.2.6
   - body-parser@1.20.6
   - immutable@5.1.8
-  - svgo@3.3.4 || 4.0.2
-  - fast-uri@3.1.3 || 3.1.4 || 3.1.5
+  - svgo@3.3.4 || 3.3.5 || 4.0.2 || 4.1.0
+  - fast-uri@3.1.3 || 3.1.4 || 3.1.5 || 3.1.6 || 3.1.7 || 3.1.8
   - serialize-javascript@7.0.3 || 7.0.5
   - react-router@8.3.0
   - postcss@8.5.18
   - valibot@1.4.2
   - nx@22.7.2
   - socket.io-parser@4.2.7
-  - undici@6.28.0 || 7.29.0
+  - undici@6.28.0 || 7.29.0 || 7.29.1
   - ip-address@10.2.1 || 10.2.2 || 10.3.1
-  - hono@4.12.34
+  - hono@4.12.34 || 4.13.5
   - dompurify@3.4.13
   - image-size@2.0.3
   - nanoid@3.3.18
   - deepmerge-ts@8.0.0
+  - '@xhmikosr/decompress@11.1.4'
+  - mysql2@3.22.0 || 3.23.1
+  - sharp@0.35.4
+  - smol-toml@1.7.1
+  - engine.io@6.6.10
+  - qs@6.15.4 || 6.16.0
+  - devalue@5.9.1
+  - baseline-browser-mapping@2.11.0
+  - browserslist@4.28.7
+  - astro@7.2.4 || 7.2.8
+  - vitest@4.1.11
+  - '@vitest/mocker@4.1.11'
 onlyBuiltDependencies:
   - bcrypt
   - esbuild
 overrides:
   '@hono/node-server@<1.19.13': ^1.19.13
   '@hono/node-server@<2.0.5': ^2.0.5
-  adm-zip@<0.6.0: ^0.6.0
+  '@xhmikosr/decompress@<=11.1.3': ^11.1.4
+  adm-zip@<0.6.1: ^0.6.1
   axios@>=1.0.0 <1.15.1: ^1.15.1
   axios@>=1.0.0 <1.15.2: ^1.15.2
   axios@>=1.0.0 <1.16.0: ^1.16.0
   axios@>=1.7.0 <1.16.0: ^1.16.0
+  baseline-browser-mapping@>=2.0.0 <2.11.0: ^2.11.0
   body-parser@<1.20.6: ^1.20.6
-  brace-expansion@<1.1.17: ^1.1.17
-  brace-expansion@>=2.0.0 <2.1.3: ^2.1.3
-  brace-expansion@>=4.0.0 <5.0.5: ^5.0.5
-  brace-expansion@>=4.0.0 <5.0.8: ^5.0.8
-  brace-expansion@>=4.0.0 <5.0.9: ^5.0.9
-  brace-expansion@>=5.0.0 <5.0.6: ^5.0.6
+  brace-expansion@<1.1.21: ^1.1.21
+  brace-expansion@>=2.0.0 <2.1.7: ^2.1.7
+  brace-expansion@>=4.0.0 <5.0.12: ^5.0.12
+  browserslist@<=4.28.6: ^4.28.7
   deepmerge-ts@<8.0.0: ^8.0.0
+  devalue@<5.9.1: ^5.9.1
   dompurify@<=3.4.12: ^3.4.13
-  fast-uri@>=3.0.0 <3.1.5: ^3.1.5
+  engine.io@>=6.6.0 <6.6.10: ^6.6.10
+  fast-uri@>=3.0.0 <3.1.8: ^3.1.8
   follow-redirects@<=1.15.11: ^1.15.12
   form-data@>=4.0.0 <4.0.6: ^4.0.6
-  hono@<4.12.34: ^4.12.34
-  hono@>=3.8.0 <4.12.34: ^4.12.34
-  hono@>=4.12.0 <4.12.34: ^4.12.34
-  hono@>=4.7.0 <4.12.34: ^4.12.34
+  hono@<4.13.5: ^4.13.5
+  hono@>=3.8.0 <4.13.5: ^4.13.5
+  hono@>=4.7.0 <4.13.5: ^4.13.5
+  hono@>=4.12.0 <4.13.5: ^4.13.5
   image-size@<=2.0.2: ^2.0.3
   ip-address@<=10.3.0: ^10.3.1
   ip-address@>=10.1.1 <=10.2.0: ^10.2.1
   ip-address@>=10.1.1 <=10.2.1: ^10.2.2
   js-yaml@<=4.1.1: ^4.1.2
-  js-yaml@>=4.0.0 <4.3.1: ^4.3.1
-  multer@>=1.0.0 <2.2.0: ^2.2.0
-  multer@>=2.0.0-alpha.1 <2.2.0: ^2.2.0
+  js-yaml@>=4.0.0 <4.3.2: ^4.3.2
+  multer@>=1.0.0 <2.4.0: ^2.4.0
+  multer@>=2.0.0-alpha.1 <2.4.0: ^2.4.0
+  mysql2@<=3.23.0: ^3.23.1
   nanoid@<3.3.18: ^3.3.18
   nx@>=17.0.4 <22.7.2: ^22.7.2
   postcss@<=8.5.17: ^8.5.18
+  qs@>=2.2.5 <6.16.0: ^6.16.0
   react-router@>=7.12.0 <8.3.0: ^8.3.0
   serialize-javascript@<=7.0.2: ^7.0.3
   serialize-javascript@>=5.0.0 <7.0.5: ^7.0.5
+  sharp@<0.35.4: ^0.35.4
+  smol-toml@<=1.7.0: ^1.7.1
   socket.io-parser@>=4.0.0 <4.2.7: ^4.2.7
+  svgo@>=3.0.0 <3.3.5: ^3.3.5
+  svgo@>=4.0.0 <4.1.0: ^4.1.0
   tmp@<0.2.6: ^0.2.6
   undici@<6.28.0: ^6.28.0
-  undici@>=7.0.0 <7.29.0: ^7.29.0
+  undici@>=7.0.0 <7.29.1: ^7.29.1
   uuid@<11.1.1: ^11.1.1
   valibot@<=1.4.1: ^1.4.2
   yaml@>=2.0.0 <2.8.3: ^2.8.3
